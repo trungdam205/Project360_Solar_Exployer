@@ -1,33 +1,40 @@
-# SOLAR Exployer
+# 🚀 Project 360: Solar Explorer
 
-A [libGDX](https://libgdx.com/) project generated with [gdx-liftoff](https://github.com/libgdx/gdx-liftoff).
+Chào mừng đến với dự án Game 2D Space Exploration. Dự án được xây dựng trên nền tảng **Java** sử dụng **LibGDX Framework** và **Box2D Physics**.
 
-This project was generated with a template including simple application launchers and an `ApplicationAdapter` extension that draws libGDX logo.
+---
 
-## Platforms
+## 📂 Phân chia Module & Trách nhiệm (PBI Assignment)
 
-- `core`: Main module with the application logic shared by all platforms.
-- `lwjgl3`: Primary desktop platform using LWJGL3; was called 'desktop' in older docs.
+[cite_start]Dựa trên bảng Product Backlog[cite: 1], dự án được chia thành 5 Module chính. Các thành viên vui lòng code đúng thư mục được giao:
 
-## Gradle
+| Module | Phụ trách chính | Thư mục làm việc (Package) | Phạm vi công việc (PBI) |
+| :--- | :--- | :--- | :--- |
+| **A - Core & Physics** | (Tên Member A) | `managers/WorldManager`, `physics/` | [cite_start]Setup Box2D World, Game Loop, xử lý va chạm, Gravity[cite: 1]. |
+| **B - Gameplay Logic** | (Tên Member B) | `entities/`, `entities/items/` | [cite_start]Player controller, Entity System, Item, Logic game chính[cite: 1]. |
+| **C - UI & UX** | (Tên Member C) | `ui/`, `screens/`, `assets/skins/` | [cite_start]Menu, HUD, Inventory View, Scene2D, chuyển cảnh[cite: 1]. |
+| **D - Assets & Graphics** | (Tên Member D) | `managers/AssetManager`, `assets/` | [cite_start]Texture Packing, Tilemap, quản lý tải tài nguyên, Animation[cite: 1]. |
+| **E - Data & QA** | (Tên Member E) | `data/`, `managers/DataManager` | [cite_start]JSON Parsing, Lưu/Load game, Git Convention, Test[cite: 1]. |
 
-This project uses [Gradle](https://gradle.org/) to manage dependencies.
-The Gradle wrapper was included, so you can run Gradle tasks using `gradlew.bat` or `./gradlew` commands.
-Useful Gradle tasks and flags:
+---
 
-- `--continue`: when using this flag, errors will not stop the tasks from running.
-- `--daemon`: thanks to this flag, Gradle daemon will be used to run chosen tasks.
-- `--offline`: when using this flag, cached dependency archives will be used.
-- `--refresh-dependencies`: this flag forces validation of all dependencies. Useful for snapshot versions.
-- `build`: builds sources and archives of every project.
-- `cleanEclipse`: removes Eclipse project data.
-- `cleanIdea`: removes IntelliJ project data.
-- `clean`: removes `build` folders, which store compiled classes and built archives.
-- `eclipse`: generates Eclipse project data.
-- `idea`: generates IntelliJ project data.
-- `lwjgl3:jar`: builds application's runnable jar, which can be found at `lwjgl3/build/libs`.
-- `lwjgl3:run`: starts the application.
-- `test`: runs unit tests (if any).
+## ⚠️ Quy tắc Git (Git Workflow) - ĐỌC KỸ ĐỂ TRÁNH CONFLICT
 
-Note that most tasks that are not specific to a single project can be run with `name:` prefix, where the `name` should be replaced with the ID of a specific project.
-For example, `core:clean` removes `build` folder only from the `core` project.
+Để tránh việc code người này đè mất code người kia, tuyệt đối **KHÔNG** làm việc trực tiếp trên nhánh `main`. Hãy tuân thủ quy trình sau:
+
+### 1. Quy tắc đặt tên nhánh (Branch Naming)
+Khi bắt đầu một tính năng mới, hãy tạo nhánh với cú pháp:
+`module-<tên_module>/<tên_tính_năng>`
+
+*Ví dụ:*
+* Module A làm vật lý: `module-a/setup-box2d`
+* Module B làm nhân vật: `module-b/player-movement`
+* Module C làm menu: `module-c/main-menu-ui`
+
+### 2. Quy trình làm việc (Step-by-Step)
+
+**Bước 1: Cập nhật code mới nhất từ main**
+Trước khi bắt đầu code ngày mới, luôn luôn kéo code về:
+```bash
+git checkout main
+git pull origin main
