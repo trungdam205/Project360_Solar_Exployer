@@ -1,0 +1,18 @@
+[
+  {
+    "id": "earth",
+    "name": "Trái Đất",
+    "gravity": 9.8,
+    "radius": 10.0,
+    "texturePath": "planets/earth.png",
+    "description": "Hành tinh xanh, nơi khởi đầu sự sống."
+  },
+  {
+    "id": "mars",
+    "name": "Sao Hỏa",
+    "gravity": 3.7,
+    "radius": 5.3,
+    "texturePath": "planets/mars.png",
+    "description": "Hành tinh đỏ với bão cát khắc nghiệt."
+  }
+]
