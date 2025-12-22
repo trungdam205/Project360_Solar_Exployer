@@ -1,8 +1,10 @@
 package com.solar;
+
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2D;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
@@ -10,77 +12,136 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.solar.config.GameConfig; // Import class config vừa tạo
+import com.solar.config.GameConfig;
+import com.solar.data.DataManager;
 
 public class MyGdxGame extends ApplicationAdapter {
+    private SpriteBatch batch;
+    private Texture image; // Ảnh Trái Đất
 
-    // --- Task 2.2: Camera & Viewport ---
     private OrthographicCamera camera;
     private Viewport viewport;
 
-    // --- Task 3.1: Box2D Variables ---
     private World world;
     private Box2DDebugRenderer debugRenderer;
 
     @Override
     public void create() {
-        // --- Task 2.2: Setup Camera & Viewport ---
-        // Tạo camera
+        batch = new SpriteBatch();
+
+        // --- 1. SỬA ĐƯỜNG DẪN ẢNH ---
+        // Lưu ý: Trong code chỉ viết "planets/earth.png" (Không viết "assets/")
+        // LibGDX tự động tìm trong folder assets.
+        try {
+            image = new Texture("planets/earth.png");
+        } catch (Exception e) {
+            System.err.println("❌ Lỗi: Không tìm thấy file 'assets/planets/earth.png'. Kiểm tra lại tên file/thư mục!");
+            // Tạo một ảnh tạm màu trắng nếu không tìm thấy để tránh crash
+            // image = new Texture(1, 1, com.badlogic.gdx.graphics.Pixmap.Format.RGB888);
+        }
+
+        // Load Data (Giữ nguyên)
+        try {
+            DataManager.getInstance().loadStaticData();
+        } catch (Exception e) { }
+
         camera = new OrthographicCamera();
 
-        // Setup Viewport: Sử dụng FitViewport để giữ tỷ lệ khung hình [4]
-        // Sử dụng đơn vị World (mét) từ GameConfig để ánh xạ trực tiếp với Box2D
+        // Setup Viewport (Giả sử World rộng 16 mét, cao 9 mét)
+        // Nếu GameConfig chưa có, thay số trực tiếp: new FitViewport(16, 9, camera);
         viewport = new FitViewport(GameConfig.WORLD_WIDTH, GameConfig.WORLD_HEIGHT, camera);
-
-        // Căn giữa camera (thường được xử lý bởi viewport.update trong resize, nhưng có thể set ban đầu)
         camera.position.set(viewport.getWorldWidth() / 2, viewport.getWorldHeight() / 2, 0);
 
-        // --- Task 3.1: Khởi tạo Box2D ---
-        // Khởi tạo hệ thống Box2D (quan trọng để load các thư viện native)
         Box2D.init();
-
-        // Tạo World với trọng lực (0, -9.8f) mô phỏng trái đất [6]
-        // true: cho phép các body ngủ (sleeping) để tối ưu hiệu năng khi không chuyển động
         world = new World(new Vector2(0, -9.8f), true);
-
-        // Tạo DebugRenderer để vẽ các đường bao vật lý (hitbox) giúp debug [5]
         debugRenderer = new Box2DDebugRenderer();
+
+        // ... (Các dòng code cũ)
+        world = new World(new Vector2(0, -9.8f), true);
+        debugRenderer = new Box2DDebugRenderer();
+
+// --- THÊM ĐOẠN NÀY ĐỂ TẠO VẬT THỂ RƠI ---
+
+// 1. Định nghĩa tính chất vật lý (BodyDef)
+        com.badlogic.gdx.physics.box2d.BodyDef bodyDef = new com.badlogic.gdx.physics.box2d.BodyDef();
+        bodyDef.type = com.badlogic.gdx.physics.box2d.BodyDef.BodyType.DynamicBody; // Dynamic = Chịu tác động trọng lực
+// Đặt vị trí ở giữa màn hình và trên cao (để nó rơi xuống)
+        bodyDef.position.set(GameConfig.WORLD_WIDTH / 2, GameConfig.WORLD_HEIGHT - 2);
+
+// 2. Tạo Body trong thế giới
+        com.badlogic.gdx.physics.box2d.Body body = world.createBody(bodyDef);
+
+// 3. Tạo hình dáng (Shape) - Hình vuông 1x1 mét
+        com.badlogic.gdx.physics.box2d.PolygonShape shape = new com.badlogic.gdx.physics.box2d.PolygonShape();
+        shape.setAsBox(0.5f, 0.5f); // Kích thước tính từ tâm (0.5 * 2 = 1 mét)
+
+// 4. Tạo Fixture (Chất liệu, độ nảy)
+        com.badlogic.gdx.physics.box2d.FixtureDef fixtureDef = new com.badlogic.gdx.physics.box2d.FixtureDef();
+        fixtureDef.shape = shape;
+        fixtureDef.density = 1f;      // Mật độ (để tính khối lượng)
+        fixtureDef.friction = 0.5f;   // Ma sát
+        fixtureDef.restitution = 0.6f; // Độ nảy (rơi xuống đất sẽ tưng lên)
+
+// Gắn Fixture vào Body
+        body.createFixture(fixtureDef);
+
+// Dọn dẹp Shape sau khi dùng xong (quan trọng để không tốn RAM)
+        shape.dispose();
+
+// --- TẠO MẶT ĐẤT (Để vật rơi xuống có chỗ đứng) ---
+        com.badlogic.gdx.physics.box2d.BodyDef groundDef = new com.badlogic.gdx.physics.box2d.BodyDef();
+        groundDef.type = com.badlogic.gdx.physics.box2d.BodyDef.BodyType.StaticBody; // Static = Đứng yên
+        groundDef.position.set(GameConfig.WORLD_WIDTH / 2, 1); // Cách đáy 1 mét
+
+        com.badlogic.gdx.physics.box2d.Body groundBody = world.createBody(groundDef);
+        com.badlogic.gdx.physics.box2d.PolygonShape groundShape = new com.badlogic.gdx.physics.box2d.PolygonShape();
+        groundShape.setAsBox(GameConfig.WORLD_WIDTH / 2, 0.5f); // Dài hết màn hình, dày 1 mét
+
+        groundBody.createFixture(groundShape, 0.0f);
+        groundShape.dispose();
     }
 
     @Override
     public void render() {
-        // --- Task 3.2: Update World & Render ---
-
-        // 1. Clear screen mỗi frame (Xóa màn hình cũ) [7]
-        // Sử dụng màu đen hoặc màu tùy ý
-        ScreenUtils.clear(0, 0, 0, 1); // R, G, B, Alpha
-
-        // 2. Logic Step: Cập nhật vật lý Box2D [5]
-        // step(timeStep, velocityIterations, positionIterations)
-        // timeStep: thời gian trôi qua giữa các frame (delta)
-        // 6 và 2 là các giá trị iteration khuyến nghị cho độ chính xác [5]
+        // Logic Update
         float delta = Gdx.graphics.getDeltaTime();
         world.step(delta, 6, 2);
-
-        // 3. Update Camera
         camera.update();
 
-        // 4. Render Debug Box2D [5]
-        // Vẽ thế giới vật lý lên màn hình thông qua camera
+        // --- 2. VẼ (RENDER) ---
+        ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f); // Màu nền vũ trụ tối
+
+        // Đồng bộ Batch với Camera (Để vẽ theo đơn vị mét thay vì pixel)
+        batch.setProjectionMatrix(camera.combined);
+
+        batch.begin();
+        if (image != null) {
+            // --- QUAN TRỌNG: VẼ THEO ĐƠN VỊ MÉT ---
+            // Nếu ảnh 500px vẽ vào thế giới 16 mét sẽ cực to. Ta phải thu nhỏ lại.
+            // Ví dụ: Vẽ Trái đất rộng 2 mét, cao 2 mét, đặt ở giữa màn hình.
+            float width = 2f;
+            float height = 2f;
+            float x = (viewport.getWorldWidth() - width) / 2; // Căn giữa X
+            float y = (viewport.getWorldHeight() - height) / 2; // Căn giữa Y
+
+            batch.draw(image, x, y, width, height);
+        }
+        batch.end();
+
+        // Vẽ Debug Box2D đè lên trên để kiểm tra
         debugRenderer.render(world, camera.combined);
     }
 
     @Override
     public void resize(int width, int height) {
-        // Cập nhật viewport khi kích thước cửa sổ thay đổi [8]
-        // true: căn giữa camera
         viewport.update(width, height, true);
     }
 
     @Override
     public void dispose() {
-        // Giải phóng tài nguyên khi thoát game để tránh rò rỉ bộ nhớ [9]
         if (world != null) world.dispose();
         if (debugRenderer != null) debugRenderer.dispose();
+        if (batch != null) batch.dispose();
+        if (image != null) image.dispose();
     }
 }

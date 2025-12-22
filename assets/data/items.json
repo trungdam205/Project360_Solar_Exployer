@@ -1,0 +1,20 @@
+[
+  {
+    "id": "oxygen_tank",
+    "name": "Bình Oxy nhỏ",
+    "type": "CONSUMABLE",
+    "effectType": "RESTORE_OXYGEN",
+    "effectValue": 20,
+    "iconPath": "items/oxygen_s.png",
+    "description": "Hồi phục một lượng nhỏ oxy."
+  },
+  {
+    "id": "gem_red",
+    "name": "Đá Ruby",
+    "type": "RESOURCE",
+    "effectType": "NONE",
+    "effectValue": 0,
+    "iconPath": "items/gem_red.png",
+    "description": "Khoáng sản quý hiếm trên Sao Hỏa."
+  }
+]
