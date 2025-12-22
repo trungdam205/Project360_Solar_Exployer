@@ -8,4 +8,6 @@ public class ItemData {
     public int effectValue;
     public String iconPath;
     public String description;
+
+    public ItemData() {}
 }
