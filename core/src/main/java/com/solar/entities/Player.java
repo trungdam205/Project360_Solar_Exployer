@@ -26,6 +26,7 @@ public class Player {
     private float stateTime;
 
     // ================= CONSTANTS =================
+    private boolean hihi;
     private boolean onGround = false;
     private static final int FRAME_COLS = 5;
     private static final int FRAME_ROWS = 1;
