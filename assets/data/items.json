@@ -1,0 +1,34 @@
+[
+  {
+    "id": "R1",
+    "name": "Common Rock",
+    "type": "RESOURCE",
+    "rarity": "Common",
+    "description": "Basic material. Used for essential upgrades.",
+    "texturePath": "items/rock_common.png"
+  },
+  {
+    "id": "R2",
+    "name": "Iron Stone",
+    "type": "RESOURCE",
+    "rarity": "Uncommon",
+    "description": "Standard ore. Used for intermediate upgrades.",
+    "texturePath": "items/stone_iron.png"
+  },
+  {
+    "id": "R3",
+    "name": "Crystal",
+    "type": "RESOURCE",
+    "rarity": "Rare",
+    "description": "Precious crystal. Used for advanced technology.",
+    "texturePath": "items/crystal.png"
+  },
+  {
+    "id": "R4",
+    "name": "Exotic Ore",
+    "type": "RESOURCE",
+    "rarity": "Very Rare",
+    "description": "Extremely rare material. The ultimate resource.",
+    "texturePath": "items/ore_exotic.png"
+  }
+]

@@ -1,102 +1,82 @@
 [
   {
     "id": "sun",
-    "name": "Mặt Trời",
-    "x": 0,
-    "y": 0,
-    "gravity": 274.6,
-    "radius": 1000.0,
+    "name": "Sun",
+    "x": 0, "y": 0, "gravity": 274.0, "radius": 1000.0,
     "texturePath": "planets/sun.png",
-    "description": "Sao trung tâm. Nhiệt độ 5,500°C. Cảnh báo: Bão từ và Bức xạ cực cao."
+    "description": "Central Star. Extreme heat and radiation.",
+    "dropRates": {}
   },
   {
     "id": "mercury",
-    "name": "Sao Thủy",
-    "x": 1400,
-    "y": 50,
-    "gravity": 3.7,
-    "radius": 45.6,
+    "name": "Mercury",
+    "x": 1400, "y": 50, "gravity": 3.7, "radius": 45.6,
     "texturePath": "planets/mercury.png",
-    "description": "Gần mặt trời nhất. Chênh lệch nhiệt độ cực lớn. Tài nguyên: Kim loại nặng."
+    "description": "Closest to the Sun. Rich in common metals.",
+    "dropRates": { "R1": 0.65, "R2": 0.30, "R3": 0.05, "R4": 0.0 }
   },
   {
     "id": "venus",
-    "name": "Sao Kim",
-    "x": 2200,
-    "y": -50,
-    "gravity": 8.9,
-    "radius": 114.0,
+    "name": "Venus",
+    "x": 2200, "y": -50, "gravity": 8.9, "radius": 114.0,
     "texturePath": "planets/venus.png",
-    "description": "Địa ngục nóng 467°C. Khí quyển dày đặc CO2. Cảnh báo: Mưa Axit."
+    "description": "Toxic atmosphere with extreme pressure.",
+    "dropRates": { "R1": 0.55, "R2": 0.30, "R3": 0.12, "R4": 0.03 }
   },
   {
     "id": "earth",
-    "name": "Trái Đất",
-    "x": 3200,
-    "y": 0,
-    "gravity": 9.81,
-    "radius": 120.0,
+    "name": "Earth",
+    "x": 3200, "y": 0, "gravity": 9.8, "radius": 120.0,
     "texturePath": "planets/earth.png",
-    "description": "Hành tinh xanh. Môi trường lý tưởng. Tài nguyên phong phú."
+    "description": "The Blue Planet. Home.",
+    "dropRates": {}
   },
   {
     "id": "moon",
-    "name": "Mặt Trăng",
-    "x": 3350,
-    "y": 150,
-    "gravity": 1.62,
-    "radius": 32.4,
+    "name": "Moon",
+    "x": 3350, "y": 150, "gravity": 1.62, "radius": 32.4,
     "texturePath": "planets/moon.png",
-    "description": "Vệ tinh của Trái Đất. Chân không. Tài nguyên: He3 (Năng lượng sạch)."
+    "description": "Earth's satellite. Barren landscape.",
+    "dropRates": { "R1": 0.60, "R2": 0.25, "R3": 0.10, "R4": 0.05 }
   },
   {
     "id": "mars",
-    "name": "Sao Hỏa",
-    "x": 4200,
-    "y": -80,
-    "gravity": 3.72,
-    "radius": 63.6,
+    "name": "Mars",
+    "x": 4200, "y": -80, "gravity": 3.7, "radius": 63.6,
     "texturePath": "planets/mars.png",
-    "description": "Hành tinh Đỏ. Lạnh -63°C. Tài nguyên: Sắt, Silicat. Cảnh báo: Bão bụi toàn cầu."
+    "description": "The Red Planet. Dusty and cold.",
+    "dropRates": { "R1": 0.45, "R2": 0.35, "R3": 0.15, "R4": 0.05 }
   },
   {
     "id": "jupiter",
-    "name": "Sao Mộc",
-    "x": 6000,
-    "y": 100,
-    "gravity": 24.8,
-    "radius": 450.0,
+    "name": "Jupiter",
+    "x": 6000, "y": 100, "gravity": 24.8, "radius": 450.0,
     "texturePath": "planets/jupiter.png",
-    "description": "Khí khổng lồ. Trọng lực đè bẹp mọi thứ. Tài nguyên: Hydrogen. Cảnh báo: Bão vĩnh cửu."
+    "description": "Gas Giant. Massive gravity well.",
+    "dropRates": { "R1": 0.40, "R2": 0.35, "R3": 0.20, "R4": 0.05 }
   },
   {
     "id": "saturn",
-    "name": "Sao Thổ",
-    "x": 8500,
-    "y": -120,
-    "gravity": 10.4,
-    "radius": 380.0,
+    "name": "Saturn",
+    "x": 8500, "y": -120, "gravity": 10.4, "radius": 380.0,
     "texturePath": "planets/saturn.png",
-    "description": "Vành đai băng giá. Gió cực mạnh. Tài nguyên: Hydrogen."
+    "description": "Ringed Planet. Beautiful but deadly winds.",
+    "dropRates": { "R1": 0.35, "R2": 0.35, "R3": 0.20, "R4": 0.10 }
   },
   {
     "id": "uranus",
-    "name": "Sao Thiên Vương",
-    "x": 10500,
-    "y": 60,
-    "gravity": 8.8,
-    "radius": 250.0,
+    "name": "Uranus",
+    "x": 10500, "y": 60, "gravity": 8.8, "radius": 250.0,
     "texturePath": "planets/uranus.png",
-    "description": "Băng khổng lồ lạnh -216°C. Tài nguyên: Methane (Nhiên liệu)."
+    "description": "Ice Giant. Extremely cold temperatures.",
+    "dropRates": { "R1": 0.30, "R2": 0.35, "R3": 0.25, "R4": 0.10 }
   },
   {
     "id": "neptune",
-    "name": "Sao Hải Vương",
-    "x": 12500,
-    "y": 0,
-    "gravity": 11.2,
-    "radius": 250.0,
+    "name": "Neptune",
+    "x": 12500, "y": 0, "gravity": 11.2, "radius": 250.0,
     "texturePath": "planets/neptune.png",
-    "description": "Hành tinh xa nhất. Gió mạnh nhất hệ mặt trời. Tài nguyên: Methane."
+    "description": "The furthest planet. Strongest winds in the system.",
+    "dropRates": { "R1": 0.25, "R2": 0.35, "R3": 0.25, "R4": 0.15 }
   }
 ]
