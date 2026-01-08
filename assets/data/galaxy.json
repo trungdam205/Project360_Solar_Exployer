@@ -1,0 +1,104 @@
+{
+  "planets": [
+    {
+      "id": "sun",
+      "name": "Sun",
+      "texturePath": "planets/sun.png",
+      "gravity": 274.0,
+      "radius": 696340.0,
+      "description": "The Sun",
+      "x": 400,
+      "y": 240
+    },
+    {
+      "id": "mercury",
+      "name": "Mercury",
+      "texturePath": "planets/mercury.png",
+      "gravity": 3.7,
+      "radius": 2439.7,
+      "description": "The smallest planet",
+      "x": 480,
+      "y": 240
+    },
+    {
+      "id": "venus",
+      "name": "Venus",
+      "texturePath": "planets/venus.png",
+      "gravity": 8.87,
+      "radius": 6051.8,
+      "description": "Venus",
+      "x": 540,
+      "y": 240
+    },
+    {
+      "id": "earth",
+      "name": "Earth",
+      "texturePath": "planets/earth.png",
+      "gravity": 9.81,
+      "radius": 6371.0,
+      "description": "Our home",
+      "x": 600,
+      "y": 240
+    },
+    {
+      "id": "moon",
+      "name": "Moon",
+      "texturePath": "planets/moon.png",
+      "gravity": 1.62,
+      "radius": 1737.1,
+      "description": "Earth's moon",
+      "x": 630,
+      "y": 260
+    },
+    {
+      "id": "mars",
+      "name": "Mars",
+      "texturePath": "planets/mars.png",
+      "gravity": 3.71,
+      "radius": 3389.5,
+      "description": "Mars",
+      "x": 680,
+      "y": 240
+    },
+    {
+      "id": "jupiter",
+      "name": "Jupiter",
+      "texturePath": "planets/jupiter.png",
+      "gravity": 24.79,
+      "radius": 69911.0,
+      "description": "Jupiter",
+      "x": 760,
+      "y": 240
+    },
+    {
+      "id": "saturn",
+      "name": "Saturn",
+      "texturePath": "planets/saturn.png",
+      "gravity": 10.44,
+      "radius": 58232.0,
+      "description": "Saturn",
+      "x": 850,
+      "y": 240
+    },
+    {
+      "id": "uranus",
+      "name": "Uranus",
+      "texturePath": "planets/uranus.png",
+      "gravity": 8.69,
+      "radius": 25362.0,
+      "description": "Uranus",
+      "x": 930,
+      "y": 240
+    },
+    {
+      "id": "neptune",
+      "name": "Neptune",
+      "texturePath": "planets/neptune.png",
+      "gravity": 11.15,
+      "radius": 24622.0,
+      "description": "Neptune",
+      "x": 1000,
+      "y": 240
+    }
+  ]
+}
