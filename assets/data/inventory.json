@@ -1,0 +1,11 @@
+{
+  "currentPlanetId": "earth",
+  "maxEnergy": 100,
+  "currentEnergy": 100,
+  "slots": [
+    {
+      "itemId": "oxygen_tank",
+      "quantity": 1
+    }
+  ]
+}
