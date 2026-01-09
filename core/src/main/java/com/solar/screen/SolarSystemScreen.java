@@ -84,7 +84,7 @@ public class SolarSystemScreen extends BaseScreen {
                 @Override
                 public void run() {
                     if (data.canEnter) {
-                        // game.setScreen(new PlanetScreen(game, data.type));
+                        game.setScreen(new PlanetScreen(game, data.type));
                         Gdx.app.log("Game", "Entering: " + data.displayName);
                     } else {
                         Gdx.app.log("Game", "Cannot enter: " + data.displayName);
