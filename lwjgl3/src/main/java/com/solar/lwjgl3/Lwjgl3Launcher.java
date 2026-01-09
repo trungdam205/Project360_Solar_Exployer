@@ -1,7 +1,11 @@
 package com.solar.lwjgl3;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Window;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowAdapter;
+import org.lwjgl.glfw.GLFW; // <--- Quan trọng: Thư viện điều khiển cửa sổ mức thấp
 import com.solar.MainGame;
 
 /** Launches the desktop (LWJGL3) application. */
@@ -17,20 +21,21 @@ public class Lwjgl3Launcher {
 
     private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {
         Lwjgl3ApplicationConfiguration configuration = new Lwjgl3ApplicationConfiguration();
-        configuration.setTitle("SOLAR Explorer");
-        //// Vsync limits the frames per second to what your hardware can display, and helps eliminate
-        //// screen tearing. This setting doesn't always work on Linux, so the line after is a safeguard.
-        configuration.useVsync(true);
-        //// Limits FPS to the refresh rate of the currently active monitor, plus 1 to try to match fractional
-        //// refresh rates. The Vsync setting above should limit the actual FPS to match the monitor.
-        configuration.setForegroundFPS(Lwjgl3ApplicationConfiguration.getDisplayMode().refreshRate + 1);
-        //// If you remove the above line and set Vsync to false, you can get unlimited FPS, which can be
-        //// useful for testing performance, but can also be very stressful to some hardware.
-        //// You may also need to configure GPU drivers to fully disable Vsync; this can cause screen tearing.
+        configuration.setTitle("SolarExplorerModuleC");
+        // 1. Cho phép resize trở lại
+        configuration.setWindowedMode(1280, 800);
+        configuration.setResizable(true);
 
-        configuration.setWindowedMode(640, 480);
-        //// You can change these files; they are in lwjgl3/src/main/resources/ .
-        //// They can also be loaded from the root of assets/ .
+        // 2. "CÀI GIÁN ĐIỆP" ĐỂ BẮT SỰ KIỆN MAXIMIZE
+        configuration.setWindowListener(new Lwjgl3WindowAdapter() {
+            @Override
+            public void maximized(boolean isMaximized) {
+                if (isMaximized) {
+                    // Nếu người dùng bấm nút Maximize -> Chuyển sang Fullscreen thật (che Taskbar)
+                    Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+                }
+            }
+        });
         configuration.setWindowIcon("libgdx128.png", "libgdx64.png", "libgdx32.png", "libgdx16.png");
 
         //// This should improve compatibility with Windows machines with buggy OpenGL drivers, Macs
