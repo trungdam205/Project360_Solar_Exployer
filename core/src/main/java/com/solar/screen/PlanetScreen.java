@@ -44,7 +44,7 @@ public class PlanetScreen extends BaseScreen {
     public void show() {
         System.out.println("Entered: " + data.displayName);
 
-        Texture bgTexture = new Texture(Gdx.files.internal("background/background.png"));
+            Texture bgTexture = new Texture(Gdx.files.internal("background/background.png"));
         // --------------------
 
         backgroundImage = new Image(bgTexture);
