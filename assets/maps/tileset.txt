@@ -1,0 +1,6 @@
+This is a placeholder - you need to create a 128x32 PNG image with 4 tiles (32x32 each) for the demo tileset.
+Use a simple image editor like Paint to create this file.
+The file should be saved at: d:\Project_CS360\assets\maps\tileset.png
+
+For now, the TMX map will try to load this, but the rendering might not work without a proper PNG.
+You can replace this with an actual PNG file.

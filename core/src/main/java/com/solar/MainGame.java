@@ -3,43 +3,61 @@ package com.solar;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.solar.screen.LoadingScreen;
+import com.solar.screen.MenuScreen;
+import com.solar.screen.SolarSystemScreen;
 
 public class MainGame extends Game {
 
-
     public SpriteBatch batch;
     public AssetManager assetManager;
+
+    private Texture background;
+    public SolarSystemScreen solarSystemScreen;
 
     @Override
     public void create() {
         batch = new SpriteBatch();
         assetManager = new AssetManager();
-        this.setScreen(new com.solar.screen.MenuScreen(this));
+        background = new Texture(Gdx.files.internal("background/background.png"));
+        background.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+
+        solarSystemScreen = new SolarSystemScreen(this);
+
+        setScreen(new LoadingScreen(
+            this,
+            "LOADING ASSETS...",
+            true,
+            () -> setScreen(new MenuScreen(MainGame.this))
+        ));
     }
 
     @Override
     public void render() {
-        super.render();
+        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // --- LOGIC FULLSCREEN ---
-        if (Gdx.input.isKeyJustPressed(Input.Keys.F11)) {
-            // Nếu đang là Fullscreen -> Chuyển về Cửa sổ
-            if (Gdx.graphics.isFullscreen()) {
-                Gdx.graphics.setWindowedMode(1280, 800);
-            }
-            // Nếu đang là Cửa sổ -> Chuyển sang Fullscreen
-            else {
-                Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
-            }
-        }
+        batch.begin();
+        batch.draw(
+            background,
+            0, 0,
+            Gdx.graphics.getWidth(),
+            Gdx.graphics.getHeight()
+        );
+
+        batch.end();
+        super.render();
     }
+
 
     @Override
     public void dispose() {
         super.dispose();
+        if (background != null) background.dispose();
         if (batch != null) batch.dispose();
         if (assetManager != null) assetManager.dispose();
     }

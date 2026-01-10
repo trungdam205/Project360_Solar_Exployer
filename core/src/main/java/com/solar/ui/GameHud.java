@@ -94,12 +94,17 @@ public class GameHud extends BaseHud {
     }
 
     // Hàm cập nhật data (Gọi từ Screen)
-    public void updateInfo(float g, float t, String at, String sur, String res) {
-        gravityLabel.setText(String.format("Gravity: %.2f G", g));
-        tempLabel.setText(String.format("Temp: %.1f C", t));
-        atmosLabel.setText("Atmos: " + at);
+    public void updateInfo(double g, String w, String at, String sur, String res) {
+        gravityLabel.setText(String.format("Gravity: %.2f m/s2", g));
+        gravityLabel.setColor(1, 1, 1, 1);
+        tempLabel.setText("Weather: " + w);
+        tempLabel.setColor(1, 1, 1, 1);
+        atmosLabel.setText("Atmosphere: " + at);
+        atmosLabel.setColor(1, 1, 1, 1);
         surfaceLabel.setText("Surface: " + sur);
-        resourceLabel.setText("Primary Res: " + res);
+        surfaceLabel.setColor(1, 1, 1, 1);
+        resourceLabel.setText("Primary Resource: " + res);
+        resourceLabel.setColor(1,1,1,1);
     }
 
     // Hàm cập nhật Slot (index: 0 -> 7)

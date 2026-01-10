@@ -4,24 +4,17 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.solar.MainGame;
 import com.solar.data.*;
 import com.solar.ui.GameHud;
-import com.solar.actor.PlayerActor;
-import com.solar.util.GravityScaler;
 
 public class PlanetScreen extends BaseScreen {
 
     private PlanetType planet;
     private PlanetData data;
 
-    private Image backgroundImage;
     private GameHud hud;
-    private PlayerActor player;
 
     public PlanetScreen(MainGame game, PlanetType planet) {
         super(game);
@@ -29,11 +22,20 @@ public class PlanetScreen extends BaseScreen {
         this.data = PlanetDatabase.get(planet);
 
         addBackButton(() ->
-            game.setScreen(new SolarSystemScreen(game))
+            setScreenWithFade(new SolarSystemScreen(game))
         );
         // 1. Tạo HUD
         hud = new GameHud(game.batch);
 
+        if (data != null) {
+            hud.updateInfo(
+                data.gravity,
+                data.weather,
+                data.atmosphere,
+                data.surfaceType,
+                data.primaryRes
+            );
+        }
         // 2. CẤU HÌNH INPUT MULTIPLEXER (QUAN TRỌNG)
         // Tạo bộ gộp input
         InputMultiplexer multiplexer = new InputMultiplexer();
@@ -49,32 +51,12 @@ public class PlanetScreen extends BaseScreen {
 
     @Override
     public void show() {
+        super.show();
         System.out.println("Entered: " + data.displayName);
-
-        Texture bgTexture = new Texture(Gdx.files.internal("background/background.png"));
-        backgroundImage = new Image(bgTexture);
-        backgroundImage.setSize(stage.getViewport().getWorldWidth(), stage.getViewport().getWorldHeight());
-        stage.addActor(backgroundImage);
-        backgroundImage.toBack();
-
-        spawnPlayer();
-    }
-
-    private void spawnPlayer() {
-        float gravity = GravityScaler.scale(data.gravity);
-
-        player = new PlayerActor(gravity);
-
-        float centerX = stage.getViewport().getWorldWidth() / 2f;
-        float spawnY  = stage.getViewport().getWorldHeight() * 0.35f;
-
-        player.setPosition(centerX - player.getWidth() / 2f, spawnY);
-        stage.addActor(player);
     }
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         if (stage != null) {
             stage.getViewport().apply(); // Đảm bảo viewport của nút Back đúng
             stage.act(delta);
