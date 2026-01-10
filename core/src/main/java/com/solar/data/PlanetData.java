@@ -12,7 +12,15 @@ public class PlanetData {
     public float x;
     public float y;
 
-    public PlanetData(PlanetType type, String displayName, String texturePath, float size, boolean canEnter, float x, float y) {
+    public float gravity;       // Trọng lực
+    public String weather;  // Nhiệt độ
+    public String atmosphere;   // Khí quyển
+    public String surfaceType;  // Bề mặt
+    public String primaryRes;   // Tài nguyên
+
+
+    public PlanetData(PlanetType type, String displayName, String texturePath, float size, boolean canEnter, float x, float y,
+                      float gravity, String weather, String atmosphere, String surfaceType, String primaryRes) {
         this.type = type;
         this.displayName = displayName;
         this.texturePath = texturePath;
@@ -21,5 +29,12 @@ public class PlanetData {
         this.positionX = 0;
         this.x = x;
         this.y = y;
+
+        this.gravity = gravity;
+        this.weather = weather;
+        this.atmosphere = atmosphere;
+        this.surfaceType = surfaceType;
+        this.primaryRes = primaryRes;
+
     }
 }
