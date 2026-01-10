@@ -27,6 +27,15 @@ public class PlanetScreen extends BaseScreen {
         // 1. Tạo HUD
         hud = new GameHud(game.batch);
 
+        if (data != null) {
+            hud.updateInfo(
+                data.gravity,
+                data.weather,
+                data.atmosphere,
+                data.surfaceType,
+                data.primaryRes
+            );
+        }
         // 2. CẤU HÌNH INPUT MULTIPLEXER (QUAN TRỌNG)
         // Tạo bộ gộp input
         InputMultiplexer multiplexer = new InputMultiplexer();

@@ -6,6 +6,9 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.solar.screen.LoadingScreen;
+import com.solar.screen.MenuScreen;
 
 public class MainGame extends Game {
 
@@ -13,11 +16,24 @@ public class MainGame extends Game {
     public SpriteBatch batch;
     public AssetManager assetManager;
 
+
     @Override
     public void create() {
         batch = new SpriteBatch();
         assetManager = new AssetManager();
-        this.setScreen(new com.solar.screen.MenuScreen(this));
+
+
+        assetManager.load("assets/uiskin.json", Skin.class);
+        assetManager.load("images/assets.atlas", TextureAtlas.class);
+
+        this.setScreen(new com.solar.screen.LoadingScreen(this, new Runnable() {
+            @Override
+            public void run() {
+                // Load xong thì vào Menu
+                setScreen(new com.solar.screen.MenuScreen(MainGame.this));
+            }
+        }));
+
     }
 
     @Override
