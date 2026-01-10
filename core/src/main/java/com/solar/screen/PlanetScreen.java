@@ -53,15 +53,14 @@ public class PlanetScreen extends BaseScreen {
     public void show() {
         System.out.println("Entered: " + data.displayName);
 
-        Texture bgTexture = new Texture(Gdx.files.internal(data.texturePath));
-        backgroundImage = new Image(bgTexture);
+        Texture bgTexture = new Texture(Gdx.files.internal("background/background.png"));
+        // --------------------
 
+        backgroundImage = new Image(bgTexture);
         backgroundImage.setSize(stage.getViewport().getWorldWidth(), stage.getViewport().getWorldHeight());
 
         stage.addActor(backgroundImage);
         backgroundImage.toBack();
-
-        // Load địa hình, nhân vật
     }
 
     @Override
