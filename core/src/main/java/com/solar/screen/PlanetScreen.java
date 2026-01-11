@@ -5,12 +5,14 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.solar.MainGame;
+import com.solar.actor.PlayerActor;
 import com.solar.data.*;
 
 public class PlanetScreen extends BaseScreen {
 
     private PlanetType planet;
     private PlanetData data;
+    private PlayerActor player;
 
     public PlanetScreen(MainGame game, PlanetType planet) {
         super(game);
@@ -28,11 +30,20 @@ public class PlanetScreen extends BaseScreen {
     public void show() {
         super.show();
 
+        // Background
         Texture bgTexture = new Texture(Gdx.files.internal("background/background.png"));
         Image bg = new Image(bgTexture);
         bg.setFillParent(true);
         stage.addActor(bg);
         bg.toBack();
+
+        // Player
+        player = new PlayerActor(1f);
+        player.setPosition(
+            20f,
+            stage.getViewport().getWorldHeight() * 0.25f
+        );
+        stage.addActor(player);
 
         System.out.println("Entered: " + data.displayName);
     }
