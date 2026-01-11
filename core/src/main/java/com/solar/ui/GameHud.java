@@ -11,26 +11,30 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.graphics.Color; // <--- Import Màu
+import com.badlogic.gdx.graphics.g2d.BitmapFont; // <--- Import Font
 
 public class GameHud extends BaseHud {
 
     // Info Labels
-    private Label gravityLabel, tempLabel, atmosLabel, surfaceLabel, resourceLabel;
+    private Label gravityLabel, weatherLabel, atmosLabel, surfaceLabel, resourceLabel;
 
     // Inventory
     private Array<InventorySlot> slots;
     private Texture slotBgTexture; // Cần dispose
 
-    public GameHud(SpriteBatch batch) {
+    public GameHud(SpriteBatch batch, BitmapFont font) {
         super(batch);
 
         Skin skin = new Skin(Gdx.files.internal("uiskin.json"));
-        // Load ảnh nền khung slot (bạn nhớ tạo file này)
-        // --- CÁCH TẠO ASSET TẠM THỜI BẰNG CODE ---
-        // 1. Tạo một Pixmap kích thước 64x64 pixel
+
         Pixmap pixmap = new Pixmap(64, 64, Pixmap.Format.RGBA8888);
 
-        // 2. Tô màu nền (Màu xám đen bán trong suốt)
+        Label.LabelStyle labelStyle = new Label.LabelStyle();
+        labelStyle.font = font;
+        labelStyle.fontColor = Color.WHITE; // Màu chữ trắng
+
+        // Tô màu nền (Màu xám đen bán trong suốt)
         pixmap.setColor(0, 0, 0, 0.5f);
         pixmap.fill();
 
@@ -57,14 +61,14 @@ public class GameHud extends BaseHud {
         Table infoTable = new Table();
         infoTable.defaults().left().pad(2); // Căn trái, cách nhau xíu
 
-        gravityLabel = new Label("Gravity: ---", skin);
-        tempLabel = new Label("Temp: ---", skin);
-        atmosLabel = new Label("Atmos: ---", skin);
-        surfaceLabel = new Label("Surface: ---", skin);
-        resourceLabel = new Label("Primary Res: ---", skin);
+        gravityLabel = new Label("Gravity: ---", labelStyle);
+        weatherLabel = new Label("Temp: ---", labelStyle);
+        atmosLabel = new Label("Atmos: ---", labelStyle);
+        surfaceLabel = new Label("Surface: ---", labelStyle);
+        resourceLabel = new Label("Primary Res: ---", labelStyle);
 
         infoTable.add(gravityLabel).row();
-        infoTable.add(tempLabel).row();
+        infoTable.add(weatherLabel).row();
         infoTable.add(atmosLabel).row();
         infoTable.add(surfaceLabel).row();
         infoTable.add(resourceLabel).row();
@@ -97,8 +101,8 @@ public class GameHud extends BaseHud {
     public void updateInfo(double g, String w, String at, String sur, String res) {
         gravityLabel.setText(String.format("Gravity: %.2f m/s2", g));
         gravityLabel.setColor(1, 1, 1, 1);
-        tempLabel.setText("Weather: " + w);
-        tempLabel.setColor(1, 1, 1, 1);
+        weatherLabel.setText("Weather: " + w);
+        weatherLabel.setColor(1, 1, 1, 1);
         atmosLabel.setText("Atmosphere: " + at);
         atmosLabel.setColor(1, 1, 1, 1);
         surfaceLabel.setText("Surface: " + sur);

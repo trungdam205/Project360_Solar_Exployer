@@ -3,37 +3,77 @@ package com.solar;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.solar.screen.LoadingScreen;
 import com.solar.screen.MenuScreen;
-
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.Texture; // <--- MỚI THÊM
+import com.badlogic.gdx.graphics.g2d.BitmapFont; // <--- MỚI THÊM
 public class MainGame extends Game {
 
 
     public SpriteBatch batch;
     public AssetManager assetManager;
-
+    public Skin skin;
 
     @Override
     public void create() {
         batch = new SpriteBatch();
         assetManager = new AssetManager();
 
+        // 1. Load Skin gốc (chứa ảnh nút, khung...)
+        skin = new Skin(Gdx.files.internal("uiskin.json"));
 
-        assetManager.load("assets/uiskin.json", Skin.class);
+        // 2. KHỞI TẠO 2 FONT
+        // --- Font Title (Dùng cho tất cả màn hình hiện tại) ---
+        FreeTypeFontGenerator genTitle = new FreeTypeFontGenerator(Gdx.files.internal("titletext.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter paramTitle = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        paramTitle.size = 32; // Size to
+        paramTitle.magFilter = Texture.TextureFilter.Nearest;
+        paramTitle.minFilter = Texture.TextureFilter.Nearest;
+        BitmapFont fontTitle = genTitle.generateFont(paramTitle);
+        genTitle.dispose();
+
+        // --- Font Body (Khởi tạo sẵn để dành) ---
+        FreeTypeFontGenerator genBody = new FreeTypeFontGenerator(Gdx.files.internal("bodytext.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter paramBody = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        paramBody.size = 20; // Size nhỏ hơn
+        paramBody.magFilter = Texture.TextureFilter.Nearest;
+        paramBody.minFilter = Texture.TextureFilter.Nearest;
+        BitmapFont fontBody = genBody.generateFont(paramBody);
+        genBody.dispose();
+
+        // 3. NHÉT VÀO SKIN & CẤU HÌNH
+        // Lưu font vào skin để sau này cần thì lấy: skin.getFont("title")
+        skin.add("title-font", fontTitle);
+        skin.add("body-font", fontBody);
+
+        // --- CẤU HÌNH LABEL ---
+        // Ghi đè style "default" -> Dùng Title Font (Theo yêu cầu của bạn)
+        Label.LabelStyle defaultLabelStyle = skin.get("default", Label.LabelStyle.class);
+        defaultLabelStyle.font = fontTitle;
+
+        // Tạo thêm style "body" -> Dùng Body Font (Để dành)
+        Label.LabelStyle bodyLabelStyle = new Label.LabelStyle(fontBody, Color.WHITE);
+        skin.add("body", bodyLabelStyle);
+
+        // --- CẤU HÌNH BUTTON ---
+        // Ghi đè style nút bấm mặc định -> Dùng Title Font
+        TextButton.TextButtonStyle defaultBtnStyle = skin.get("default", TextButton.TextButtonStyle.class);
+        defaultBtnStyle.font = fontTitle;
+        defaultBtnStyle.fontColor = Color.WHITE;
+
+        // Load Atlas (như cũ)
         assetManager.load("images/assets.atlas", TextureAtlas.class);
 
-        this.setScreen(new com.solar.screen.LoadingScreen(this, new Runnable() {
-            @Override
-            public void run() {
-                // Load xong thì vào Menu
-                setScreen(new com.solar.screen.MenuScreen(MainGame.this));
-            }
-        }));
-
+        // Vào Loading
+        this.setScreen(new LoadingScreen(this, () -> setScreen(new MenuScreen(MainGame.this))));
     }
 
     @Override
