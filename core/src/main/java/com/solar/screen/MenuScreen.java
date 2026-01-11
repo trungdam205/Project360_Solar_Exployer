@@ -1,48 +1,42 @@
 package com.solar.screen;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
 import com.solar.MainGame;
 
+// Main menu screen: shows title and navigation buttons
 public class MenuScreen extends BaseScreen {
-    private Skin skin;
+
     private MainGame game;
 
     public MenuScreen(MainGame game) {
         super(game);
         this.game = game;
     }
-
     @Override
     public void show() {
-        Gdx.input.setInputProcessor(stage);
-
-        if (game.assetManager.isLoaded("assets/uiskin.json")) {
-            skin = game.assetManager.get("assets/uiskin.json", Skin.class);
-        } else {
-            // Phòng hờ
-            skin = new Skin(Gdx.files.internal("assets/uiskin.json"));
-        }
+        super.show();
         setBackground("background/background.png");
 
-        // Title
+        // Title label
         Label titleLabel = new Label("SOLAR SYSTEM\nEXPLORER", skin);
-        titleLabel.setFontScale(5f);Gdx.gl.glClearColor(0, 0, 0, 1);
+        titleLabel.setFontScale(3.0f);
+        titleLabel.setAlignment(Align.left);
+
         Table titleTable = new Table();
         titleTable.setFillParent(true);
         titleTable.top().left().padLeft(250).padTop(200);
         titleTable.add(titleLabel);
-
         stage.addActor(titleTable);
 
-        // Buttons
-        TextButton startButton = new TextButton("Start Game", skin);
-        TextButton optionButton = new TextButton("Option", skin);
-        TextButton exitButton = new TextButton("Exit", skin);
+        // Main buttons
+        TextButton startButton = new TextButton("START", skin);
+        TextButton optionButton = new TextButton("OPTION", skin);
+        TextButton exitButton = new TextButton("EXIT", skin);
 
         Table table = new Table();
         table.setFillParent(true);
@@ -50,25 +44,15 @@ public class MenuScreen extends BaseScreen {
         table.add(startButton).width(400).height(150).pad(10).row();
         table.add(optionButton).width(400).height(150).pad(10).row();
         table.add(exitButton).width(400).height(150).pad(10);
-
         stage.addActor(table);
+
+        // Button listeners
         startButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-
-                Screen nextScreen = new LoadingScreen(
-                    game,
-                    "ENTERING SOLAR SYSTEM...",
-                    false,
-                    () -> {
-                        game.setScreen(((MainGame) game).solarSystemScreen);
-                    }
-                );
-
-                setScreenWithFade(nextScreen);
+                game.setScreen(new SolarSystemScreen(game));
             }
         });
-
 
         exitButton.addListener(new ClickListener() {
             @Override
@@ -77,10 +61,9 @@ public class MenuScreen extends BaseScreen {
             }
         });
     }
-
     @Override
     public void render(float delta) {
-
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.act(delta);
         stage.draw();
     }
@@ -93,7 +76,6 @@ public class MenuScreen extends BaseScreen {
     @Override
     public void dispose() {
         stage.dispose();
-        skin.dispose();
     }
 
 }

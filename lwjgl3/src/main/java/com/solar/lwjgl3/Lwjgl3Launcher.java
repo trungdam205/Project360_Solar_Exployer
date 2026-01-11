@@ -7,6 +7,7 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Window;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowAdapter;
 import org.lwjgl.glfw.GLFW; // <--- Quan trọng: Thư viện điều khiển cửa sổ mức thấp
 import com.solar.MainGame;
+import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle; import com.badlogic.gdx.graphics.Color;
 
 /** Launches the desktop (LWJGL3) application. */
 public class Lwjgl3Launcher {
@@ -22,11 +23,9 @@ public class Lwjgl3Launcher {
     private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {
         Lwjgl3ApplicationConfiguration configuration = new Lwjgl3ApplicationConfiguration();
         configuration.setTitle("SolarExplorerModuleC");
-        // 1. Cho phép resize trở lại
         configuration.setWindowedMode(1280, 800);
         configuration.setResizable(true);
 
-        // 2. "CÀI GIÁN ĐIỆP" ĐỂ BẮT SỰ KIỆN MAXIMIZE
         configuration.setWindowListener(new Lwjgl3WindowAdapter() {
             @Override
             public void maximized(boolean isMaximized) {

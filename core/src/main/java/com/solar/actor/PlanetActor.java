@@ -8,18 +8,14 @@ import com.badlogic.gdx.utils.Align;
 import com.solar.data.PlanetData;
 
 public class PlanetActor extends Image {
-
-    // 2. Sửa Constructor: Thêm tham số 'TextureRegion region'
-    // Xóa bỏ logic "new Texture()" bên trong
+    // Constructor: creates a planet actor with texture, size, and click handler
     public PlanetActor(PlanetData data, TextureRegion region, final Runnable onClick) {
-        // Gọi Constructor của lớp cha (Image) với region đã lấy từ Atlas
         super(region);
 
-        // Các logic set size và căn chỉnh giữ nguyên
-        setSize(data.size, data.size);
+        setSize(data.size, data.size); // Set planet size
         this.setOrigin(Align.center);
 
-        // Logic sự kiện click giữ nguyên
+        // Add click listener if planet can be entered
         if (data.canEnter && onClick != null) {
             addListener(new ClickListener() {
                 @Override

@@ -2,15 +2,12 @@ package com.solar.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas; // 1. Import Atlas
-import com.badlogic.gdx.graphics.g2d.TextureRegion; // 2. Import Region
-import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
@@ -18,32 +15,33 @@ import com.solar.MainGame;
 import com.solar.actor.PlanetActor;
 import com.solar.data.PlanetData;
 import com.solar.data.PlanetDatabase;
-
 public class SolarSystemScreen extends BaseScreen {
 
     private Group solarGroup;
     private Label planetNameLabel;
-
-    // 3. Khai báo biến Atlas
     private TextureAtlas atlas;
+    private boolean shouldDisposeAtlas = false;
 
+    // Constructor: set background and build UI + solar system
     public SolarSystemScreen(MainGame game) {
         super(game);
+        setBackground("background/background.png");
+
         createSolarSystem();
         createUI();
     }
 
+    // Build top-level UI (title and back button)
     private void createUI() {
-        addBackButton(new Runnable() {
-            @Override
-            public void run() {
-                game.setScreen(new MenuScreen(game));
-            }
-        });
+        // Nút Back tự động dùng font xịn từ BaseScreen
+        addBackButton(() -> game.setScreen(new MenuScreen(game)));
 
+        // --- SỬA ĐỔI: Dùng skin thay vì game.font ---
+        // Vì MainGame đã set font mặc định cho skin là TitleFont rồi,
+        // nên chỉ cần new Label(text, skin) là xong.
         Label titleLabel = new Label("SOLAR SYSTEM", skin);
         titleLabel.setFontScale(4f);
-        titleLabel.setAlignment(Align.center);
+        titleLabel.setAlignment(Align.left);
 
         Table titleTable = new Table();
         titleTable.setFillParent(true);
@@ -52,24 +50,21 @@ public class SolarSystemScreen extends BaseScreen {
         stage.addActor(titleTable);
     }
 
+    // Create planet actors and add them to a group
     private void createSolarSystem() {
         solarGroup = new Group();
         float centerX = stage.getViewport().getWorldWidth() / 2;
         float centerY = stage.getViewport().getWorldHeight() / 2;
 
-        // 4. LẤY ATLAS TỪ ASSET MANAGER (Đã load ở LoadingScreen)
-        // Đảm bảo đường dẫn đúng y hệt lúc load (có thể là "images/assets.atlas")
-        if (game.assetManager.isLoaded("images/assets.atlas")) {
-            atlas = game.assetManager.get("images/assets.atlas", TextureAtlas.class);
+        if (game.getAssetManager().isLoaded("images/assets.atlas")) {
+            atlas = game.getAssetManager().get("images/assets.atlas", TextureAtlas.class);
+            shouldDisposeAtlas = false;
         } else {
-            // Fallback nếu chưa load (chỉ để debug, thực tế không nên xảy ra)
             atlas = new TextureAtlas(Gdx.files.internal("images/assets.atlas"));
+            shouldDisposeAtlas = true;
         }
 
         for (final PlanetData data : PlanetDatabase.getAllPlanets()) {
-
-            // 5. TÌM VÙNG ẢNH TRONG ATLAS
-            // data.texturePath bây giờ là tên (vd: "earth"), không phải đường dẫn file
             TextureRegion planetRegion = atlas.findRegion(data.texturePath);
 
             if (planetRegion == null) {
@@ -77,35 +72,18 @@ public class SolarSystemScreen extends BaseScreen {
                 continue;
             }
 
-            // 6. TRUYỀN REGION VÀO PLANET ACTOR
-            // (Bạn cần sửa file PlanetActor.java để nhận tham số này, xem hướng dẫn bên dưới)
-            PlanetActor p = new PlanetActor(data, planetRegion, new Runnable() {
-                @Override
-                public void run() {
-                    if (data.canEnter) {
-
-                        String message = "ENTERING " + data.displayName.toUpperCase() + "...";
-                        game.setScreen(new LoadingScreen(game, message, false, new Runnable() {
-                            @Override
-                            public void run() {
-                                // Chuyển sang màn hình hành tinh
-                                game.setScreen(new PlanetScreen(game, data.type));
-                                Gdx.app.log("Game", "Entered: " + data.displayName);
-                            }
-                        }));
-
-                    } else {
-                        Gdx.app.log("Game", "Cannot enter: " + data.displayName);
-                    }
+            PlanetActor p = new PlanetActor(data, planetRegion, () -> {
+                if (data.canEnter) {
+                    game.setScreen(new PlanetScreen(game, data.type));
                 }
             });
 
-            // Tính toán vị trí
+            // Position actor relative to viewport center
             float drawX = centerX + data.x - (data.size / 2);
             float drawY = centerY + data.y - (data.size / 2);
             p.setPosition(drawX, drawY);
 
-            // Sự kiện chuột
+            // Hover listener: show name and scale up on enter, reset on exit
             p.addListener(new InputListener() {
                 @Override
                 public void enter(InputEvent event, float x, float y, int pointer, com.badlogic.gdx.scenes.scene2d.Actor fromActor) {
@@ -127,49 +105,34 @@ public class SolarSystemScreen extends BaseScreen {
         stage.addActor(solarGroup);
     }
 
+    // Create the floating label used to display planet names on hover
     private void createNameLabel() {
+        // --- SỬA ĐỔI: Dùng skin luôn ---
         planetNameLabel = new Label("", skin);
-        planetNameLabel.setColor(1, 1, 0, 1);
+        planetNameLabel.setColor(1, 1, 0, 1); // yellow color
         planetNameLabel.setFontScale(1.5f);
+        planetNameLabel.setAlignment(Align.center);
         stage.addActor(planetNameLabel);
     }
 
-    // Khi người chơi click vào hành tinh Mars
+    // ===========BỎ ĐI HOẶC THAY CODE CỦA TRUNG==================
+    // Helper to enter a planet (loads assets then switches screen)
     public void enterPlanet(PlanetData data) {
-
-        // BƯỚC A: Dọn dẹp bộ nhớ cũ (Optional nhưng khuyên dùng)
-        // Ví dụ: Đang ở Earth muốn sang Mars thì unload asset của Earth đi
-        // game.assetManager.unload("textures/earth_map.png");
-
-        // BƯỚC B: Xếp hàng asset MỚI cần cho màn chơi này
-        // Ví dụ load map riêng của hành tinh đó
-        game.assetManager.load("maps/" + data.texturePath + ".tmx", TiledMap.class);
-
-        // BƯỚC C: Chuyển sang LoadingScreen
-        String message = "ENTERING " + data.displayName.toUpperCase() + "...";
-        game.setScreen(new LoadingScreen(game, message, false, new Runnable() {
-            @Override
-            public void run() {
-                // Load xong map và nhạc rồi -> Vào chơi thôi!
-                game.setScreen(new PlanetScreen(game, data.type));
-            }
-        }));
+        // Optionally load a tiled map here, then switch screens via LoadingScreen
+        game.setScreen(new LoadingScreen(game, () -> game.setScreen(new PlanetScreen(game, data.type))));
     }
 
     @Override
     public void render(float delta) {
         Gdx.gl.glClearColor(0, 0, 0.1f, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         stage.act(delta);
         stage.draw();
 
-        // Debug tọa độ (Code cũ của bạn)
+        // Debug: show mouse coordinates in window title
         Vector2 mouseLoc = stage.screenToStageCoordinates(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
-        float centerX = stage.getViewport().getWorldWidth() / 2;
-        float centerY = stage.getViewport().getWorldHeight() / 2;
-        float dbX = mouseLoc.x - centerX;
-        float dbY = mouseLoc.y - centerY;
-        Gdx.graphics.setTitle("Solar System - DB X: " + (int)dbX + " | Y: " + (int)dbY);
+        Gdx.graphics.setTitle("X: " + (int)mouseLoc.x + " | Y: " + (int)mouseLoc.y);
     }
 
     @Override
@@ -183,13 +146,11 @@ public class SolarSystemScreen extends BaseScreen {
     }
 
     @Override
-    public void show() {
-        super.show();
-        stage.getViewport().update(
-            Gdx.graphics.getWidth(),
-            Gdx.graphics.getHeight(),
-            true
-        );
+    public void dispose() {
+        super.dispose();
+        // Dispose atlas only if this screen created it
+        if (shouldDisposeAtlas && atlas != null) {
+            atlas.dispose();
+        }
     }
-
 }
