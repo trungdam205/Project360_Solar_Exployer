@@ -3,7 +3,7 @@ package com.solar.screen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.math.MathUtils; // Import toán học
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -15,41 +15,42 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 
 public class LoadingScreen extends BaseScreen {
 
+    // Callback to run when loading finished
     private Runnable onLoadingFinished;
     private ProgressBar progressBar;
     private Label progressLabel;
 
+    // Time tracker used to smooth the progress bar
     private float stateTime = 0f;
-    private static final float MIN_LOADING_TIME = 2.0f;
+    private static final float MIN_LOADING_TIME = 2.0f; // minimum display time for loading screen
 
     public LoadingScreen(MainGame game, Runnable onLoadingFinished) {
         super(game);
         this.onLoadingFinished = onLoadingFinished;
 
-        // 1. SETUP BACKGROUND (Dùng hàm có sẵn của BaseScreen)
-        // Đảm bảo file ảnh tồn tại: assets/background/background.png
         setBackground("background/background.png");
 
-        // Load Skin đồng bộ
-        if (!game.assetManager.isLoaded("assets/uiskin.json")) {
-            game.assetManager.load("assets/uiskin.json", Skin.class);
-            game.assetManager.finishLoading();
+        // Ensure skin is available synchronously so UI can be built
+        if (!game.getAssetManager().isLoaded("assets/uiskin.json")) {
+            game.getAssetManager().load("assets/uiskin.json", Skin.class);
+            game.getAssetManager().finishLoading();
         }
-        this.skin = game.skin;
+        this.skin = game.getSkin();
 
+        // Build UI widgets
         setupUI();
 
-        // Xếp hàng asset nặng
-        if (!game.assetManager.isLoaded("images/assets.atlas")) {
-            game.assetManager.load("images/assets.atlas", TextureAtlas.class);
+        // Queue large assets for async loading
+        if (!game.getAssetManager().isLoaded("images/assets.atlas")) {
+            game.getAssetManager().load("images/assets.atlas", TextureAtlas.class);
         }
     }
 
+    // Create and layout the loading UI (title, progress bar, percent label)
     private void setupUI() {
         Table table = new Table();
         table.setFillParent(true);
 
-        // TỰ ĐỘNG DÙNG TITLE FONT (Do đã config style "default" ở MainGame)
         Label titleLabel = new Label("LOADING...", skin);
         titleLabel.setAlignment(Align.center);
 
@@ -57,7 +58,7 @@ public class LoadingScreen extends BaseScreen {
         progressBar.setValue(0);
         progressBar.setAnimateDuration(0.0f);
 
-        progressLabel = new Label("0%", skin); // Tự động dùng font Title
+        progressLabel = new Label("0%", skin);
 
         table.add(titleLabel).padBottom(20).row();
         table.add(progressBar).width(400).height(30).padBottom(10).row();
@@ -66,38 +67,29 @@ public class LoadingScreen extends BaseScreen {
         stage.addActor(table);
     }
 
+    // Render loop: update asset manager, smooth progress visualization, and run callback when done
     @Override
     public void render(float delta) {
-        // Xóa màn hình
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         stateTime += delta;
 
-        // Update AssetManager
-        boolean isLoaded = game.assetManager.update();
+        // Advance AssetManager; returns true when all queued assets finished loading
+        boolean isLoaded = game.getAssetManager().update();
 
-        // --- LOGIC SMOOTH BAR ---
-        // 1. Tiến độ theo thời gian (0 -> 1 trong 2 giây)
+        // Visual progress = min(time-based progress, real asset progress) to avoid jumps
         float timeProgress = stateTime / MIN_LOADING_TIME;
-
-        // 2. Tiến độ load thật (0 -> 1)
-        float realProgress = game.assetManager.getProgress();
-
-        // 3. Lấy số NHỎ HƠN để đảm bảo bar không chạy quá nhanh
+        float realProgress = game.getAssetManager().getProgress();
         float visualProgress = Math.min(timeProgress, realProgress);
-
-        // Giới hạn max là 1
         visualProgress = MathUtils.clamp(visualProgress, 0f, 1f);
 
-        // Cập nhật UI
         progressBar.setValue(visualProgress);
         progressLabel.setText((int)(visualProgress * 100) + "%");
 
-        // --- ĐIỀU KIỆN CHUYỂN MÀN (KHÔNG FADE) ---
+        // When both assets loaded and min display time passed, fire callback
         if (isLoaded && stateTime >= MIN_LOADING_TIME) {
             if (onLoadingFinished != null) {
-                // Gọi trực tiếp Runnable để chuyển màn ngay lập tức
                 onLoadingFinished.run();
             }
         }

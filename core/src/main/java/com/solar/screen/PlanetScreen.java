@@ -27,7 +27,7 @@ public class PlanetScreen extends BaseScreen {
         // Sử dụng hàm có sẵn của BaseScreen
         setBackground("background/background.png");
 
-        // Tắt cảm ứng của background để không che mất input của game
+        // Disable background touch so underlying game input is not blocked
         if (bgImage != null) {
             bgImage.setTouchable(Touchable.disabled);
         }
@@ -38,15 +38,11 @@ public class PlanetScreen extends BaseScreen {
             game.setScreen(new SolarSystemScreen(game));
         });
 
-        // --- 3. SETUP HUD ---
-        // FIX LỖI FONT: Lấy "body-font" từ Skin (size 20) thay vì game.font (null)
-        // Font này phù hợp để hiển thị các thông số kỹ thuật dài
-        hud = new GameHud(game.batch, game.skin.getFont("body-font"));
+        // 3. Setup HUD: create with a reasonable font scale
+        hud = new GameHud(game.getBatch(), game.getSkin().getFont("body-font"), 0.8f);
 
         // Cập nhật thông tin lên HUD nếu dữ liệu tồn tại
         if (data != null) {
-            // Các biến này khớp với thứ tự trong PlanetDatabase bạn cung cấp:
-            // Gravity (float), Weather, Atmosphere, Surface, Resource
             hud.updateInfo(
                 data.gravity,
                 data.weather,
@@ -65,8 +61,7 @@ public class PlanetScreen extends BaseScreen {
             System.out.println("Entered: " + data.displayName);
         }
 
-        // --- 4. XỬ LÝ INPUT MULTIPLEXER ---
-        // Kết hợp Input của HUD (để kéo/xem thông tin) và Stage (để bấm nút Back)
+        // 4. Setup input multiplexer: HUD input first, then stage
         InputMultiplexer multiplexer = new InputMultiplexer();
 
         if (hud != null) {
@@ -88,12 +83,13 @@ public class PlanetScreen extends BaseScreen {
             stage.draw();
         }
 
-        // Vẽ lớp trên: HUD thông số
+        // Draw HUD on top
         if (hud != null) {
             hud.draw();
         }
     }
 
+    // Handle resize events, ensure HUD also resizes
     @Override
     public void resize(int width, int height) {
         super.resize(width, height); // BaseScreen tự xử lý resize background

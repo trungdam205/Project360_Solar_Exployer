@@ -7,9 +7,8 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.solar.MainGame;
-import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
-import com.badlogic.gdx.graphics.Color;
 
+// Main menu screen: shows title and navigation buttons
 public class MenuScreen extends BaseScreen {
 
     private MainGame game;
@@ -20,13 +19,12 @@ public class MenuScreen extends BaseScreen {
     }
     @Override
     public void show() {
-        super.show(); // Gọi base để setup input
+        super.show();
         setBackground("background/background.png");
 
-        // Dùng Skin mặc định (đã chứa Title Font)
+        // Title label
         Label titleLabel = new Label("SOLAR SYSTEM\nEXPLORER", skin);
-
-        titleLabel.setFontScale(3.0f); // Phóng to gấp 3 lần (bạn có thể chỉnh 2.0f hoặc 4.0f tùy thích)
+        titleLabel.setFontScale(3.0f);
         titleLabel.setAlignment(Align.left);
 
         Table titleTable = new Table();
@@ -35,7 +33,7 @@ public class MenuScreen extends BaseScreen {
         titleTable.add(titleLabel);
         stage.addActor(titleTable);
 
-        // Buttons (Tự động dùng Title Font từ skin MainGame)
+        // Main buttons
         TextButton startButton = new TextButton("START", skin);
         TextButton optionButton = new TextButton("OPTION", skin);
         TextButton exitButton = new TextButton("EXIT", skin);
@@ -48,6 +46,7 @@ public class MenuScreen extends BaseScreen {
         table.add(exitButton).width(400).height(150).pad(10);
         stage.addActor(table);
 
+        // Button listeners
         startButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -64,7 +63,6 @@ public class MenuScreen extends BaseScreen {
     }
     @Override
     public void render(float delta) {
-
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.act(delta);
         stage.draw();

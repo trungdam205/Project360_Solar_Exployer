@@ -50,8 +50,8 @@ public class GameScreen extends BaseScreen {
 
         // 3. LẤY ẢNH TỪ ATLAS
         // Đảm bảo atlas đã load ở LoadingScreen
-        if (game.assetManager.isLoaded("images/assets.atlas")) {
-            atlas = game.assetManager.get("images/assets.atlas", TextureAtlas.class);
+        if (game.getAssetManager().isLoaded("images/assets.atlas")) {
+            atlas = game.getAssetManager().get("images/assets.atlas", TextureAtlas.class);
             // Lấy vùng ảnh nhân vật (Ví dụ tên là "idle" hoặc "rocket" trong file atlas của bạn)
             playerTexture = atlas.findRegion("idle");
         }
@@ -135,8 +135,8 @@ public class GameScreen extends BaseScreen {
 
         // 5. VẼ GAME (SPRITE)
         // Set camera cho batch để vẽ đúng vị trí thế giới
-        game.batch.setProjectionMatrix(gameCamera.combined);
-        game.batch.begin();
+        game.getBatch().setProjectionMatrix(gameCamera.combined);
+        game.getBatch().begin();
         if (playerTexture != null) {
             // Vẽ texture tại vị trí Body
             // Lưu ý: Body tính từ tâm, Draw tính từ góc dưới trái -> Cần trừ radius
@@ -145,9 +145,9 @@ public class GameScreen extends BaseScreen {
             float drawY = (playerBody.getPosition().y * PPM) - (playerTexture.getRegionHeight() / 2f);
 
             // Vẽ player (có thể thêm logic xoay theo playerBody.getAngle())
-            game.batch.draw(playerTexture, drawX, drawY);
+            game.getBatch().draw(playerTexture, drawX, drawY);
         }
-        game.batch.end();
+        game.getBatch().end();
 
         // 6. VẼ DEBUG BOX2D (Khung dây xanh lá)
         // RenderBox2D cần matrix tỉ lệ theo mét
@@ -173,5 +173,11 @@ public class GameScreen extends BaseScreen {
         super.dispose();
         world.dispose();
         debugRenderer.dispose();
+    }
+
+    @Override
+    public void resume() {
+        // Resume the screen (delegate to BaseScreen)
+        super.resume();
     }
 }

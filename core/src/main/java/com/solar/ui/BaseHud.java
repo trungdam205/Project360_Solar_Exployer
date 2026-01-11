@@ -11,7 +11,6 @@ public abstract class BaseHud implements Disposable {
     public Stage stage;
     protected Viewport viewport;
 
-    // Kích thước ảo cho UI (1280x720 là chuẩn phổ biến cho pixel art HD)
     protected static final float HUD_WIDTH = 1280;
     protected static final float HUD_HEIGHT = 720;
 
@@ -25,7 +24,6 @@ public abstract class BaseHud implements Disposable {
     }
 
     public void draw() {
-        // Áp dụng viewport của HUD trước khi vẽ để không bị lệch
         viewport.apply();
         stage.act();
         stage.draw();

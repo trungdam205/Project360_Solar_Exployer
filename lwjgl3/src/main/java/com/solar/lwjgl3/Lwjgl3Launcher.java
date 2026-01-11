@@ -23,11 +23,9 @@ public class Lwjgl3Launcher {
     private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {
         Lwjgl3ApplicationConfiguration configuration = new Lwjgl3ApplicationConfiguration();
         configuration.setTitle("SolarExplorerModuleC");
-        // 1. Cho phép resize trở lại
         configuration.setWindowedMode(1280, 800);
         configuration.setResizable(true);
 
-        // 2. "CÀI GIÁN ĐIỆP" ĐỂ BẮT SỰ KIỆN MAXIMIZE
         configuration.setWindowListener(new Lwjgl3WindowAdapter() {
             @Override
             public void maximized(boolean isMaximized) {

@@ -16,11 +16,18 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.Texture; // <--- MỚI THÊM
 import com.badlogic.gdx.graphics.g2d.BitmapFont; // <--- MỚI THÊM
 public class MainGame extends Game {
+    private static final String SKIN_PATH = "uiskin.json";
+    private static final String TITLE_FONT_PATH = "titletext.ttf";
+    private static final String BODY_FONT_PATH = "bodytext.ttf";
+    private static final String ATLAS_PATH = "images/assets.atlas";
 
+    private SpriteBatch batch;
+    private AssetManager assetManager;
+    private Skin skin;
 
-    public SpriteBatch batch;
-    public AssetManager assetManager;
-    public Skin skin;
+    public SpriteBatch getBatch() { return batch; }
+    public AssetManager getAssetManager() { return assetManager; }
+    public Skin getSkin() { return skin; }
 
     @Override
     public void create() {
@@ -28,11 +35,11 @@ public class MainGame extends Game {
         assetManager = new AssetManager();
 
         // 1. Load Skin gốc (chứa ảnh nút, khung...)
-        skin = new Skin(Gdx.files.internal("uiskin.json"));
+        skin = new Skin(Gdx.files.internal(SKIN_PATH));
 
         // 2. KHỞI TẠO 2 FONT
         // --- Font Title (Dùng cho tất cả màn hình hiện tại) ---
-        FreeTypeFontGenerator genTitle = new FreeTypeFontGenerator(Gdx.files.internal("titletext.ttf"));
+        FreeTypeFontGenerator genTitle = new FreeTypeFontGenerator(Gdx.files.internal(TITLE_FONT_PATH));
         FreeTypeFontGenerator.FreeTypeFontParameter paramTitle = new FreeTypeFontGenerator.FreeTypeFontParameter();
         paramTitle.size = 32; // Size to
         paramTitle.magFilter = Texture.TextureFilter.Nearest;
@@ -41,11 +48,11 @@ public class MainGame extends Game {
         genTitle.dispose();
 
         // --- Font Body (Khởi tạo sẵn để dành) ---
-        FreeTypeFontGenerator genBody = new FreeTypeFontGenerator(Gdx.files.internal("bodytext.ttf"));
+        FreeTypeFontGenerator genBody = new FreeTypeFontGenerator(Gdx.files.internal(BODY_FONT_PATH));
         FreeTypeFontGenerator.FreeTypeFontParameter paramBody = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        paramBody.size = 20; // Size nhỏ hơn
-        paramBody.magFilter = Texture.TextureFilter.Nearest;
-        paramBody.minFilter = Texture.TextureFilter.Nearest;
+        paramBody.size = 48; // Size lớn hơn để chữ nét khi phóng to
+        paramBody.magFilter = Texture.TextureFilter.Linear;
+        paramBody.minFilter = Texture.TextureFilter.Linear;
         BitmapFont fontBody = genBody.generateFont(paramBody);
         genBody.dispose();
 
@@ -70,7 +77,7 @@ public class MainGame extends Game {
         defaultBtnStyle.fontColor = Color.WHITE;
 
         // Load Atlas (như cũ)
-        assetManager.load("images/assets.atlas", TextureAtlas.class);
+        assetManager.load(ATLAS_PATH, TextureAtlas.class);
 
         // Vào Loading
         this.setScreen(new LoadingScreen(this, () -> setScreen(new MenuScreen(MainGame.this))));
@@ -98,6 +105,6 @@ public class MainGame extends Game {
         super.dispose();
         if (batch != null) batch.dispose();
         if (assetManager != null) assetManager.dispose();
+        if (skin != null) skin.dispose();
     }
-
 }

@@ -8,8 +8,8 @@ public class PlanetDatabase {
     private static final List<PlanetData> planets = new ArrayList<>();
 
     static {
-        // Cú pháp cũ: Type, Name, "PATH", Size, CanEnter, X, Y
-        // Cú pháp MỚI: Type, Name, "REGION_NAME", Size, CanEnter, X, Y
+        // Cú pháp MỚI: Type, Name, "REGION_NAME", Size, CanEnter, X, Y,
+        // gravity, weather, atmosphere, surfaceType, primaryRes
 
         // Lưu ý: Tên region lấy chính xác từ file assets.atlas (dòng 10, 56, 68...)
 
