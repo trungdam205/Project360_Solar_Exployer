@@ -3,6 +3,7 @@ package com.solar.screen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.solar.MainGame;
 import com.solar.actor.PlayerActor;
@@ -13,6 +14,12 @@ public class PlanetScreen extends BaseScreen {
     private PlanetType planet;
     private PlanetData data;
     private PlayerActor player;
+    private float groundLineY;
+    private float computeGroundLine(Image ground) {
+        // chỉnh TẠM tại đây, không đụng database
+        float OVERRIDE_RATIO = 0.35f;
+        return ground.getHeight() * OVERRIDE_RATIO;
+    }
 
     public PlanetScreen(MainGame game, PlanetType planet) {
         super(game);
@@ -30,26 +37,64 @@ public class PlanetScreen extends BaseScreen {
     public void show() {
         super.show();
 
-        // Background
-        Texture bgTexture = new Texture(Gdx.files.internal("background/background.png"));
-        Image bg = new Image(bgTexture);
-        bg.setFillParent(true);
-        stage.addActor(bg);
-        bg.toBack();
+        // ===== LAYERS =====
+        Group starLayer   = new Group();
+        Group planetLayer = new Group();
+        Group actorLayer  = new Group();
 
-        // Player
-        player = new PlayerActor(1f);
-        player.setPosition(
-            20f,
-            stage.getViewport().getWorldHeight() * 0.25f
+        stage.addActor(starLayer);
+        stage.addActor(planetLayer);
+        stage.addActor(actorLayer);
+
+        // ===== STAR BACKGROUND =====
+        Texture starTexture =
+            new Texture(Gdx.files.internal("background/background.png"));
+
+        Image starBg = new Image(starTexture);
+        starBg.setSize(
+            stage.getViewport().getWorldWidth(),
+            stage.getViewport().getWorldHeight()
         );
-        stage.addActor(player);
+        starBg.setPosition(0, 0);
 
-        System.out.println("Entered: " + data.displayName);
+        starLayer.addActor(starBg);
+
+        // ===== PLANET = GROUND =====
+        Texture groundTexture =
+            new Texture(Gdx.files.internal(data.texturePathPlanetScreen));
+
+        Image ground = new Image(groundTexture);
+
+        ground.setSize(
+            stage.getViewport().getWorldWidth(),
+            groundTexture.getHeight()
+        );
+        ground.setPosition(0, 0);
+        planetLayer.addActor(ground);
+
+// ===== GROUND LINE (INVISIBLE) =====
+        groundLineY = computeGroundLine(ground);
+
+// ===== PLAYER =====
+        player = new PlayerActor(data.gravity);
+
+// spawn trên ground line
+        player.setPosition(
+            0,
+            groundLineY
+        );
+
+        actorLayer.addActor(player);
+
+        // ===== UI =====
+        addBackButton(() ->
+            setScreenWithFade(new SolarSystemScreen(game))
+        );
     }
 
     @Override
     public void render(float delta) {
+        Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.act(delta);
         stage.draw();
