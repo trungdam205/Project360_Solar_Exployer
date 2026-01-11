@@ -27,7 +27,7 @@ public class PlayerActor extends Actor {
     private float gravity;
     private float velocityY = 0f;
     private boolean isGrounded = true;
-    private boolean facingRight = true;
+    private boolean facingRight = false;
 
     private enum Direction {
         LEFT,
@@ -56,15 +56,16 @@ public class PlayerActor extends Actor {
 
         // Row 1: JUMP
         jumpAnim = new Animation<>(0.2f,
-            regions[1][0], regions[1][1], regions[1][2],
-            regions[1][3], regions[1][4]);
+            regions[0][0], regions[0][1], regions[0][2],
+            regions[0][3], regions[0][4]);
 
         // Row 2: WALK (LEFT base)
         walkAnim = new Animation<>(0.15f,
             regions[2][0], regions[2][1], regions[2][2],
             regions[2][3], regions[2][4]);
 
-        setSize(FRAME_WIDTH, FRAME_HEIGHT);
+        float SCALE = 0.75f;
+        setSize(FRAME_WIDTH * SCALE, FRAME_HEIGHT * SCALE);
     }
 
     // ===== GAME LOOP =====
