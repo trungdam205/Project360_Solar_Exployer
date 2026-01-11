@@ -15,11 +15,6 @@ public class PlanetScreen extends BaseScreen {
     private PlanetData data;
     private PlayerActor player;
     private float groundLineY;
-    private float computeGroundLine(Image ground) {
-        // chỉnh TẠM tại đây, không đụng database
-        float OVERRIDE_RATIO = 0.35f;
-        return ground.getHeight() * OVERRIDE_RATIO;
-    }
 
     public PlanetScreen(MainGame game, PlanetType planet) {
         super(game);
@@ -72,18 +67,12 @@ public class PlanetScreen extends BaseScreen {
         ground.setPosition(0, 0);
         planetLayer.addActor(ground);
 
-// ===== GROUND LINE (INVISIBLE) =====
-        groundLineY = computeGroundLine(ground);
+        // ===== GROUND LINE TỪ DATABASE =====
+        groundLineY = ground.getHeight() * data.groundHeightRatio;
 
-// ===== PLAYER =====
-        player = new PlayerActor(data.gravity);
-
-// spawn trên ground line
-        player.setPosition(
-            0,
-            groundLineY
-        );
-
+        // ===== PLAYER =====
+        player = new PlayerActor(data.gravity, groundLineY);
+        player.setPosition(50, groundLineY);
         actorLayer.addActor(player);
 
         // ===== UI =====

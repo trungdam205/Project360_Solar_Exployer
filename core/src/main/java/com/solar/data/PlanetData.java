@@ -12,6 +12,7 @@ public class PlanetData {
     public float positionX;
     public float x;
     public float y;
+    public float groundHeightRatio;
 
     public float gravity;       // Trọng lực
     public String weather;  // Nhiệt độ
@@ -20,7 +21,7 @@ public class PlanetData {
     public String primaryRes;   // Tài nguyên
 
 
-    public PlanetData(PlanetType type, String displayName, String texturePath, String texturePathPlanetScreen, float size, boolean canEnter, float x, float y,
+    public PlanetData(PlanetType type, String displayName, String texturePath, String texturePathPlanetScreen, float size, boolean canEnter, float x, float y, float groundHeightRatio,
                       float gravity, String weather, String atmosphere, String surfaceType, String primaryRes) {
         this.type = type;
         this.displayName = displayName;
@@ -31,6 +32,7 @@ public class PlanetData {
         this.positionX = 0;
         this.x = x;
         this.y = y;
+        this.groundHeightRatio = groundHeightRatio;
 
         this.gravity = gravity;
         this.weather = weather;
