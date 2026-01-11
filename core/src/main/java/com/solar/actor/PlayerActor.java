@@ -8,85 +8,133 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 
 public class PlayerActor extends Actor {
 
-    private static final float BASE_MOVE_SPEED = 120f;
+    // ===== CONFIG =====
+    private static final float BASE_MOVE_SPEED = 160f;
+    private static final float BASE_GRAVITY    = 900f;
+    private static final float JUMP_FORCE      = 420f;
 
+    // ===== SPRITE =====
     private Texture spriteSheet;
     private TextureRegion[][] regions;
 
     private Animation<TextureRegion> idleAnim;
-    private Animation<TextureRegion> upAnim;
-    private Animation<TextureRegion> sideAnim;
+    private Animation<TextureRegion> walkAnim;
+    private Animation<TextureRegion> jumpAnim;
 
-    private TextureRegion idleFrame;
     private float stateTime = 0f;
+
+    // ===== STATE =====
     private float gravity;
+    private float velocityY = 0f;
+    private boolean isGrounded = true;
+    private boolean facingRight = true;
 
     private enum Direction {
-        LEFT, RIGHT, UP, DOWN, IDLE
+        LEFT,
+        RIGHT,
+        JUMP,
+        IDLE
     }
 
     private Direction direction = Direction.IDLE;
-    private boolean facingRight = false;
 
+    // ===== CONSTRUCTOR =====
     public PlayerActor(float gravity) {
         this.gravity = gravity;
 
         spriteSheet = new Texture(Gdx.files.internal("images/astronaut.png"));
 
-        int FRAME_WIDTH  = 340; // ✅ CHUẨN
-        int FRAME_HEIGHT = 500; // ✅ CHUẨN
+        int FRAME_WIDTH  = 340;
+        int FRAME_HEIGHT = 500;
 
         regions = TextureRegion.split(spriteSheet, FRAME_WIDTH, FRAME_HEIGHT);
 
+        // Row 0: IDLE
         idleAnim = new Animation<>(0.2f,
             regions[0][0], regions[0][1], regions[0][2],
             regions[0][3], regions[0][4]);
 
-        upAnim = new Animation<>(0.2f,
+        // Row 1: JUMP
+        jumpAnim = new Animation<>(0.2f,
             regions[1][0], regions[1][1], regions[1][2],
             regions[1][3], regions[1][4]);
 
-        sideAnim = new Animation<>(0.15f,
+        // Row 2: WALK (LEFT base)
+        walkAnim = new Animation<>(0.15f,
             regions[2][0], regions[2][1], regions[2][2],
             regions[2][3], regions[2][4]);
 
-        idleFrame = regions[0][0];
-
-        setSize(FRAME_WIDTH / 3f, FRAME_HEIGHT / 3f); // thu nhỏ hiển thị
+        setSize(FRAME_WIDTH, FRAME_HEIGHT);
     }
 
+    // ===== GAME LOOP =====
     @Override
     public void act(float delta) {
         super.act(delta);
         stateTime += delta;
-        handleMovement(delta);
+
+        handleHorizontalMovement(delta);
+        handleJumpAndGravity(delta);
+        clampToScreen();
     }
 
-    private void handleMovement(float delta) {
-        float speed = BASE_MOVE_SPEED / gravity;
-        float dx = 0, dy = 0;
+    // ===== MOVE LEFT / RIGHT =====
+    private void handleHorizontalMovement(float delta) {
+        float dx = 0;
 
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-            dx -= speed * delta;
-            direction = Direction.LEFT;
+            dx = -BASE_MOVE_SPEED * delta;
             facingRight = false;
-        } else if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-            dx += speed * delta;
-            direction = Direction.RIGHT;
+
+            if (isGrounded)
+                direction = Direction.LEFT;
+        }
+        else if (Gdx.input.isKeyPressed(Input.Keys.D)) {
+            dx = BASE_MOVE_SPEED * delta;
             facingRight = true;
-        } else if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-            dy += speed * delta;
-            direction = Direction.UP;
-        } else if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-            dy -= speed * delta;
-            direction = Direction.DOWN;
-        }  else {
-            direction = Direction.IDLE;
+
+            if (isGrounded)
+                direction = Direction.RIGHT;
+        }
+        else {
+            if (isGrounded)
+                direction = Direction.IDLE;
         }
 
-        moveBy(dx, dy);
+        moveBy(dx, 0);
     }
 
+    // ===== JUMP + GRAVITY =====
+    private void handleJumpAndGravity(float delta) {
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) && isGrounded) {
+            velocityY = JUMP_FORCE * gravity;
+            isGrounded = false;
+            direction = Direction.JUMP;
+        }
+
+        velocityY -= BASE_GRAVITY * gravity * delta;
+        moveBy(0, velocityY * delta);
+
+        if (getY() <= 0) {
+            setY(0);
+            velocityY = 0;
+            isGrounded = true;
+            direction = Direction.IDLE;
+        }
+    }
+
+    // ===== CLAMP TO SCREEN =====
+    private void clampToScreen() {
+        float worldWidth = getStage().getViewport().getWorldWidth();
+
+        if (getX() < 0)
+            setX(0);
+        if (getX() > worldWidth - getWidth())
+            setX(worldWidth - getWidth());
+    }
+
+    // ===== DRAW =====
     @Override
     public void draw(Batch batch, float parentAlpha) {
         TextureRegion frame;
@@ -94,32 +142,39 @@ public class PlayerActor extends Actor {
         switch (direction) {
 
             case LEFT:
+                frame = walkAnim.getKeyFrame(stateTime, true);
+                applyFlip(frame, false);
+                break;
+
             case RIGHT:
-                frame = sideAnim.getKeyFrame(stateTime, true);
-
-                // sprite gốc là LEFT
-                if (facingRight && !frame.isFlipX()) {
-                    frame.flip(true, false); // sang phải → flip
-                }
-                if (!facingRight && frame.isFlipX()) {
-                    frame.flip(true, false); // sang trái → bỏ flip
-                }
+                frame = walkAnim.getKeyFrame(stateTime, true);
+                applyFlip(frame, true);
                 break;
 
-            case UP:
-                frame = upAnim.getKeyFrame(stateTime, true);
+            case JUMP:
+                frame = jumpAnim.getKeyFrame(stateTime, true);
+                applyFlip(frame, facingRight);
                 break;
 
-            case DOWN:
             case IDLE:
             default:
                 frame = idleAnim.getKeyFrame(stateTime, true);
+                applyFlip(frame, facingRight);
                 break;
         }
 
         batch.draw(frame, getX(), getY(), getWidth(), getHeight());
     }
 
+    // ===== FLIP HELPER =====
+    private void applyFlip(TextureRegion frame, boolean faceRight) {
+        if (faceRight && !frame.isFlipX())
+            frame.flip(true, false);
+        if (!faceRight && frame.isFlipX())
+            frame.flip(true, false);
+    }
+
+    // ===== CLEAN UP =====
     public void dispose() {
         spriteSheet.dispose();
     }
