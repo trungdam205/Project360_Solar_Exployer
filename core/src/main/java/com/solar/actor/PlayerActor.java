@@ -9,7 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 public class PlayerActor extends Actor {
 
     // ===== CONFIG =====
-    private static final float BASE_MOVE_SPEED = 160f;
+    private static final float BASE_MOVE_SPEED = 120f;
     private static final float BASE_GRAVITY = 900f;
     private static final float JUMP_FORCE = 420f;
 
@@ -18,27 +18,30 @@ public class PlayerActor extends Actor {
     private TextureRegion[][] regions;
 
     private Animation<TextureRegion> idleAnim;
-    private Animation<TextureRegion> walkAnim;
-    private Animation<TextureRegion> jumpAnim;
+    private Animation<TextureRegion> moveLeftAnim;
+    private Animation<TextureRegion> moveRightAnim;
+    private Animation<TextureRegion> idleJumpAnim;
+    private Animation<TextureRegion> leftJumpAnim;
+    private Animation<TextureRegion> rightJumpAnim;
 
     private float stateTime = 0f;
 
     // ===== STATE =====
     private float gravity;
-    private float VelocityX = 0f;
+    private float velocityX = 0f;
     private float velocityY = 0f;
     private boolean isGrounded = true;
-    private boolean facingRight = false;
     private float groundY;
 
     private enum State {
+        IDLE,
         MOVE,
-        JUMP,
-        IDLE
+        JUMP
     }
+
     private enum Direction {
         LEFT,
-        RIGHT,
+        RIGHT
     }
 
     private State state = State.IDLE;
@@ -46,8 +49,8 @@ public class PlayerActor extends Actor {
 
     // ===== CONSTRUCTOR =====
     public PlayerActor(float gravity, float groundY) {
-        this.groundY = groundY;
         this.gravity = gravity;
+        this.groundY = groundY;
 
         spriteSheet = new Texture(Gdx.files.internal("images/astronaut.png"));
 
@@ -56,20 +59,29 @@ public class PlayerActor extends Actor {
 
         regions = TextureRegion.split(spriteSheet, FRAME_WIDTH, FRAME_HEIGHT);
 
-        // Row 0: IDLE
+        // IDLE
         idleAnim = new Animation<>(0.2f,
             regions[0][0], regions[0][1], regions[0][2],
             regions[0][3], regions[0][4]);
 
-        // Row 1: JUMP
-        jumpAnim = new Animation<>(0.2f,
-            regions[0][0], regions[0][1], regions[0][2],
-            regions[0][3], regions[0][4]);
-
-        // Row 2: WALK (LEFT base)
-        walkAnim = new Animation<>(0.15f,
+        // MOVE LEFT (base)
+        moveLeftAnim = new Animation<>(0.15f,
             regions[2][0], regions[2][1], regions[2][2],
             regions[2][3], regions[2][4]);
+
+        // MOVE RIGHT (flipped copy)
+        moveRightAnim = new Animation<>(0.15f,
+            copyAndFlip(regions[2][0]),
+            copyAndFlip(regions[2][1]),
+            copyAndFlip(regions[2][2]),
+            copyAndFlip(regions[2][3]),
+            copyAndFlip(regions[2][4])
+        );
+
+        // JUMP (reuse for now)
+        idleJumpAnim = idleAnim;
+        leftJumpAnim = moveLeftAnim;
+        rightJumpAnim = moveRightAnim;
 
         float SCALE = 0.75f;
         setSize(FRAME_WIDTH * SCALE, FRAME_HEIGHT * SCALE);
@@ -81,63 +93,65 @@ public class PlayerActor extends Actor {
         super.act(delta);
         stateTime += delta;
 
-        handleHorizontalMovement(delta);
-        handleJumpAndGravity(delta);
+        handleInput(delta);
+        applyGravity(delta);
+        moveBy(velocityX * delta, velocityY * delta);
+        resolveGround();
         clampToScreen();
     }
 
-    // ===== MOVE LEFT / RIGHT =====
-    private void handleHorizontalMovement(float delta) {
-        float dx = 0;
+    // ===== INPUT =====
+    private void handleInput(float delta) {
+        float speed = BASE_MOVE_SPEED / gravity; // gravity ảnh hưởng tốc độ
+
+        velocityX = 0;
 
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-            dx = -BASE_MOVE_SPEED * delta;
+            velocityX = -speed;
             direction = Direction.LEFT;
-
-            if (isGrounded)
-                state = State.MOVE;
+            if (isGrounded) state = State.MOVE;
         }
         else if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-            dx = BASE_MOVE_SPEED * delta;
+            velocityX = speed;
             direction = Direction.RIGHT;
-
-            if (isGrounded)
-                state = State.MOVE;
+            if (isGrounded) state = State.MOVE;
         }
         else {
-            if (isGrounded)
-                state = State.IDLE;
+            if (isGrounded) state = State.IDLE;
         }
 
-        moveBy(dx, 0);
-    }
-
-    // ===== JUMP + GRAVITY =====
-    private void handleJumpAndGravity(float delta) {
-
+        // Jump
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) && isGrounded) {
-            velocityY = JUMP_FORCE * gravity;
+            velocityY = JUMP_FORCE / gravity;
             isGrounded = false;
             state = State.JUMP;
         }
+    }
 
-        velocityY -= BASE_GRAVITY * gravity * delta;
-        moveBy(0, velocityY * delta);
+    // ===== GRAVITY =====
+    private void applyGravity(float delta) {
+        if (!isGrounded) {
+            velocityY -= BASE_GRAVITY * gravity * delta;
+        }
+    }
 
+    // ===== GROUND COLLISION =====
+    private void resolveGround() {
         if (getY() <= groundY) {
             setY(groundY);
             velocityY = 0;
             isGrounded = true;
-            state = State.IDLE;
+
+            if (velocityX == 0) state = State.IDLE;
+            else state = State.MOVE;
         }
     }
 
-    // ===== CLAMP TO SCREEN =====
+    // ===== CLAMP =====
     private void clampToScreen() {
         float worldWidth = getStage().getViewport().getWorldWidth();
 
-        if (getX() < 0)
-            setX(0);
+        if (getX() < 0) setX(0);
         if (getX() > worldWidth - getWidth())
             setX(worldWidth - getWidth());
     }
@@ -149,36 +163,35 @@ public class PlayerActor extends Actor {
 
         switch (state) {
             case MOVE:
-                frame = walkAnim.getKeyFrame(stateTime, true);
+                frame = (direction == Direction.RIGHT)
+                    ? moveRightAnim.getKeyFrame(stateTime, true)
+                    : moveLeftAnim.getKeyFrame(stateTime, true);
                 break;
+
             case JUMP:
-                frame = jumpAnim.getKeyFrame(stateTime, true);
+                frame = (direction == Direction.RIGHT)
+                    ? rightJumpAnim.getKeyFrame(stateTime, true)
+                    : leftJumpAnim.getKeyFrame(stateTime, true);
                 break;
+
             case IDLE:
             default:
                 frame = idleAnim.getKeyFrame(stateTime, true);
                 break;
         }
 
-        float drawX = getX();
-        float drawWidth = getWidth();
-
-        if (direction == Direction.RIGHT) {
-            drawX += drawWidth;
-            drawWidth = -drawWidth;
-        }
-
-        batch.draw(
-            frame,
-            drawX,
-            getY(),
-            drawWidth,
-            getHeight()
-        );
+        batch.draw(frame, getX(), getY(), getWidth(), getHeight());
     }
 
     // ===== CLEAN UP =====
     public void dispose() {
         spriteSheet.dispose();
+    }
+
+    // ===== HELPER =====
+    private TextureRegion copyAndFlip(TextureRegion src) {
+        TextureRegion copy = new TextureRegion(src);
+        copy.flip(true, false);
+        return copy;
     }
 }
