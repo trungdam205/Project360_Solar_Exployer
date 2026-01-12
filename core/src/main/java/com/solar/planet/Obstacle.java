@@ -1,8 +1,8 @@
-package com.solar. entity;
+package com.solar.planet;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
-import com. badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Rectangle;
 
 /**
  * Obstacle entity for planet exploration
@@ -20,7 +20,7 @@ public class Obstacle {
     public Texture texture;
 
     public Obstacle() {
-        this. bounds = new Rectangle();
+        this.bounds = new Rectangle();
         this.color = new Color(0.45f, 0.38f, 0.32f, 1f);
     }
 
@@ -28,7 +28,7 @@ public class Obstacle {
         this();
         this.x = x;
         this.y = y;
-        this. width = width;
+        this.width = width;
         this.height = height;
         this.type = type;
         updateBounds();
@@ -39,10 +39,10 @@ public class Obstacle {
     }
 
     public boolean isCollidable() {
-        return type != Type. DECORATION && type != Type. SIGN;
+        return type != Type.DECORATION && type != Type.SIGN;
     }
 
     public boolean isDeadly() {
-        return type == Type. SPIKE;
+        return type == Type.SPIKE;
     }
 }

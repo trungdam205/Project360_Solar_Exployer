@@ -1,0 +1,346 @@
+[
+  {
+    "id": "sun",
+    "name": "The Sun",
+    "type": "Star",
+    "diameter": "1,392,700 km",
+    "mass": "1.989 x 10^30 kg",
+    "temperature": "5,500C (surface)",
+    "distance": "0 (center)",
+    "orbitalPeriod": "N/A",
+    "orbitalSpeed": "N/A",
+    "facts": [
+      "Contains 99.86% of the Solar System mass",
+      "Light takes 8 min 20 sec to reach Earth",
+      "Core temperature: 15 million C"
+    ],
+    "explorable": false,
+    "baseSize": 100,
+    "orbitRadius": 0,
+    "orbitSpeed": 0,
+    "orbitPhase": 0,
+    "innerColor": { "r": 1, "g": 0.95, "b": 0.7, "a": 1 },
+    "outerColor": { "r": 1, "g": 0.6, "b": 0, "a": 1 }
+  },
+
+  {
+    "id": "mercury",
+    "name": "Mercury",
+    "type": "Terrestrial Planet",
+    "diameter": "4,879 km",
+    "mass": "3.285 x 10^23 kg",
+    "temperature": "-173C to 427C",
+    "distance": "57.9 million km (0.39 AU)",
+    "orbitalPeriod": "88 days",
+    "orbitalSpeed": "47.87 km/s",
+    "facts": [
+      "Closest planet to the Sun",
+      "Has no atmosphere or moons",
+      "One day lasts 176 Earth days"
+    ],
+    "explorable": true,
+    "baseSize": 18,
+    "orbitRadius": 160,
+    "orbitSpeed": 4.0,
+    "orbitPhase": 0,
+    "innerColor": { "r": 0.72, "g": 0.72, "b": 0.72, "a": 1 },
+    "outerColor": { "r": 0.45, "g": 0.45, "b": 0.45, "a": 1 },
+    "hasCraters": true,
+    "exploration": {
+      "gravity": 0.38,
+      "skyColorTop": { "r": 0, "g": 0, "b": 0, "a": 1 },
+      "skyColorBottom": { "r": 0.1, "g": 0.1, "b": 0.1, "a": 1 },
+      "terrainColor": { "r": 0.42, "g": 0.42, "b": 0.42, "a": 1 },
+      "landmarks": [
+        { "x": 300, "name": "Caloris Basin", "description": "Massive impact crater 1,550 km wide", "emoji": "O", "discovered": false },
+        { "x": 900, "name": "Weird Terrain", "description": "Chaotic landscape opposite Caloris", "emoji": "^", "discovered": false },
+        { "x": 1500, "name": "Ice Deposits", "description": "Water ice in shadowed craters", "emoji": "*", "discovered": false }
+      ]
+    }
+  },
+
+  {
+    "id": "venus",
+    "name": "Venus",
+    "type": "Terrestrial Planet",
+    "diameter": "12,104 km",
+    "mass": "4.867 x 10^24 kg",
+    "temperature": "465C (average)",
+    "distance": "108.2 million km (0.72 AU)",
+    "orbitalPeriod": "225 days",
+    "orbitalSpeed": "35.02 km/s",
+    "facts": [
+      "Hottest planet in Solar System",
+      "Rotates backwards (retrograde)",
+      "Thick CO2 atmosphere"
+    ],
+    "explorable": true,
+    "baseSize": 28,
+    "orbitRadius": 220,
+    "orbitSpeed": 1.6,
+    "orbitPhase": 0.3,
+    "innerColor": { "r": 0.96, "g": 0.9, "b": 0.8, "a": 1 },
+    "outerColor": { "r": 0.83, "g": 0.65, "b": 0.4, "a": 1 },
+    "exploration": {
+      "gravity": 0.91,
+      "skyColorTop": { "r": 1, "g": 0.53, "b": 0.27, "a": 1 },
+      "skyColorBottom": { "r": 1, "g": 0.67, "b": 0.4, "a": 1 },
+      "terrainColor": { "r": 0.83, "g": 0.65, "b": 0.42, "a": 1 },
+      "landmarks": [
+        { "x": 350, "name": "Maxwell Montes", "description": "Highest mountain on Venus (11 km)", "emoji": "^", "discovered": false },
+        { "x": 850, "name": "Volcanic Plains", "description": "Vast lava flows cover 80% of surface", "emoji": "~", "discovered": false },
+        { "x": 1400, "name": "Aphrodite Terra", "description": "One of two continental highlands", "emoji": "M", "discovered": false }
+      ]
+    }
+  },
+
+  {
+    "id": "earth",
+    "name": "Earth",
+    "type": "Terrestrial Planet",
+    "diameter": "12,742 km",
+    "mass": "5.972 x 10^24 kg",
+    "temperature": "15C (average)",
+    "distance": "149.6 million km (1 AU)",
+    "orbitalPeriod": "365.25 days",
+    "orbitalSpeed": "29.78 km/s",
+    "facts": [
+      "Only known planet with liquid water",
+      "Tilted 23.5 degrees causing seasons",
+      "Magnetic field protects from solar wind"
+    ],
+    "explorable": true,
+    "baseSize": 30,
+    "orbitRadius": 290,
+    "orbitSpeed": 1.0,
+    "orbitPhase": 0,
+    "innerColor": { "r": 0.53, "g": 0.81, "b": 0.92, "a": 1 },
+    "outerColor": { "r": 0.18, "g": 0.35, "b": 0.62, "a": 1 },
+    "hasContinents": true,
+    "exploration": {
+      "gravity": 1.0,
+      "skyColorTop": { "r": 0.29, "g": 0.62, "b": 0.85, "a": 1 },
+      "skyColorBottom": { "r": 0.53, "g": 0.81, "b": 0.92, "a": 1 },
+      "terrainColor": { "r": 0.24, "g": 0.55, "b": 0.25, "a": 1 },
+      "landmarks": [
+        { "x": 400, "name": "Mount Everest", "description": "Tallest mountain on Earth (8,849 m)", "emoji": "^", "discovered": false },
+        { "x": 950, "name": "Ocean", "description": "Covers 71% of Earth's surface", "emoji": "~", "discovered": false },
+        { "x": 1500, "name": "Forests", "description": "Home to 80% of terrestrial biodiversity", "emoji": "T", "discovered": false }
+      ]
+    }
+  },
+
+  {
+    "id": "moon",
+    "name": "The Moon",
+    "type": "Natural Satellite",
+    "diameter": "3,474 km",
+    "mass": "7.342 x 10^22 kg",
+    "temperature": "-183C to 127C",
+    "distance": "384,400 km from Earth",
+    "orbitalPeriod": "27.3 days",
+    "orbitalSpeed": "1.022 km/s",
+    "facts": [
+      "Always shows same face to Earth",
+      "Causes ocean tides on Earth",
+      "Moving away at 3.8 cm/year"
+    ],
+    "explorable": true,
+    "baseSize": 12,
+    "orbitRadius": 55,
+    "orbitSpeed": 12.0,
+    "orbitPhase": 0,
+    "innerColor": { "r": 0.91, "g": 0.91, "b": 0.91, "a": 1 },
+    "outerColor": { "r": 0.62, "g": 0.62, "b": 0.62, "a": 1 },
+    "hasCraters": true,
+    "exploration": {
+      "gravity": 0.166,
+      "skyColorTop": { "r": 0, "g": 0, "b": 0, "a": 1 },
+      "skyColorBottom": { "r": 0.04, "g": 0.04, "b": 0.04, "a": 1 },
+      "terrainColor": { "r": 0.6, "g": 0.6, "b": 0.6, "a": 1 },
+      "landmarks": [
+        { "x": 400, "name": "Tycho Crater", "description": "Impact crater with bright rays", "emoji": "O", "discovered": false },
+        { "x": 900, "name": "Mare Tranquillitatis", "description": "Apollo 11 landing site", "emoji": "!", "discovered": false },
+        { "x": 1400, "name": "South Pole", "description": "Water ice in shadowed craters", "emoji": "*", "discovered": false }
+      ]
+    }
+  }
+,
+  {
+    "id": "mars",
+    "name": "Mars",
+    "type": "Terrestrial Planet",
+    "diameter": "6,779 km",
+    "mass": "6.417 x 10^23 kg",
+    "temperature": "-65C (average)",
+    "distance": "227.9 million km (1.52 AU)",
+    "orbitalPeriod": "687 days",
+    "orbitalSpeed": "24.07 km/s",
+    "facts": [
+      "Has Olympus Mons, tallest volcano",
+      "Two moons: Phobos and Deimos",
+      "A day (sol) is 24h 37min"
+    ],
+    "explorable": true,
+    "baseSize": 24,
+    "orbitRadius": 370,
+    "orbitSpeed": 0.53,
+    "orbitPhase": 1.0472,
+    "innerColor": { "r": 0.91, "g": 0.66, "b": 0.49, "a": 1 },
+    "outerColor": { "r": 0.72, "g": 0.33, "b": 0.2, "a": 1 },
+    "hasPolarCap": true,
+    "exploration": {
+      "gravity": 0.38,
+      "skyColorTop": { "r": 0.83, "g": 0.45, "b": 0.29, "a": 1 },
+      "skyColorBottom": { "r": 0.91, "g": 0.66, "b": 0.49, "a": 1 },
+      "terrainColor": { "r": 0.72, "g": 0.33, "b": 0.2, "a": 1 },
+      "landmarks": [
+        { "x": 350, "name": "Olympus Mons", "description": "Tallest volcano in Solar System (21 km)", "emoji": "^", "discovered": false },
+        { "x": 900, "name": "Valles Marineris", "description": "Canyon system 4,000 km long", "emoji": "=", "discovered": false },
+        { "x": 1450, "name": "Polar Ice Cap", "description": "Frozen CO2 and water ice", "emoji": "*", "discovered": false }
+      ]
+    }
+  },
+
+  {
+    "id": "jupiter",
+    "name": "Jupiter",
+    "type": "Gas Giant",
+    "diameter": "139,820 km",
+    "mass": "1.898 x 10^27 kg",
+    "temperature": "-108C (cloud tops)",
+    "distance": "778.5 million km (5.2 AU)",
+    "orbitalPeriod": "11.86 years",
+    "orbitalSpeed": "13.07 km/s",
+    "facts": [
+      "Largest planet in Solar System",
+      "Great Red Spot storm larger than Earth",
+      "Has 95 known moons"
+    ],
+    "explorable": true,
+    "baseSize": 70,
+    "orbitRadius": 480,
+    "orbitSpeed": 0.08,
+    "orbitPhase": 3.1416,
+    "innerColor": { "r": 0.96, "g": 0.87, "b": 0.7, "a": 1 },
+    "outerColor": { "r": 0.83, "g": 0.65, "b": 0.45, "a": 1 },
+    "hasGreatSpot": true,
+    "exploration": {
+      "gravity": 2.53,
+      "skyColorTop": { "r": 0.83, "g": 0.65, "b": 0.42, "a": 1 },
+      "skyColorBottom": { "r": 0.76, "g": 0.56, "b": 0.35, "a": 1 },
+      "terrainColor": { "r": 0.91, "g": 0.77, "b": 0.55, "a": 1 },
+      "landmarks": [
+        { "x": 450, "name": "Great Red Spot", "description": "Giant storm raging for 350+ years", "emoji": "@", "discovered": false },
+        { "x": 950, "name": "Cloud Bands", "description": "Alternating zones and belts", "emoji": "=", "discovered": false },
+        { "x": 1400, "name": "Lightning Storms", "description": "3x more powerful than Earth", "emoji": "!", "discovered": false }
+      ]
+    }
+  },
+
+  {
+    "id": "saturn",
+    "name": "Saturn",
+    "type": "Gas Giant",
+    "diameter": "116,460 km",
+    "mass": "5.683 x 10^26 kg",
+    "temperature": "-139C (cloud tops)",
+    "distance": "1.43 billion km (9.5 AU)",
+    "orbitalPeriod": "29.46 years",
+    "orbitalSpeed": "9.69 km/s",
+    "facts": [
+      "Famous for spectacular ring system",
+      "Rings made of ice and rock",
+      "Has 146 known moons including Titan"
+    ],
+    "explorable": true,
+    "baseSize": 60,
+    "orbitRadius": 600,
+    "orbitSpeed": 0.034,
+    "orbitPhase": 1.5708,
+    "innerColor": { "r": 0.96, "g": 0.9, "b": 0.78, "a": 1 },
+    "outerColor": { "r": 0.72, "g": 0.6, "b": 0.4, "a": 1 },
+    "hasRings": true,
+    "exploration": {
+      "gravity": 1.07,
+      "skyColorTop": { "r": 0.96, "g": 0.9, "b": 0.78, "a": 1 },
+      "skyColorBottom": { "r": 0.91, "g": 0.83, "b": 0.63, "a": 1 },
+      "terrainColor": { "r": 0.83, "g": 0.72, "b": 0.48, "a": 1 },
+      "landmarks": [
+        { "x": 400, "name": "Ring System", "description": "Spectacular ice rings 282,000 km wide", "emoji": "O", "discovered": false },
+        { "x": 900, "name": "Hexagonal Storm", "description": "Mysterious hexagon at north pole", "emoji": "#", "discovered": false },
+        { "x": 1350, "name": "Titan", "description": "Moon with thicker atmosphere than Earth", "emoji": "o", "discovered": false }
+      ]
+    }
+  },
+
+  {
+    "id": "uranus",
+    "name": "Uranus",
+    "type": "Ice Giant",
+    "diameter": "50,724 km",
+    "mass": "8.681 x 10^25 kg",
+    "temperature": "-197C (average)",
+    "distance": "2.87 billion km (19.2 AU)",
+    "orbitalPeriod": "84 years",
+    "orbitalSpeed": "6.81 km/s",
+    "facts": [
+      "Rotates on its side (98 degree tilt)",
+      "Made of water, methane, ammonia ices",
+      "Has 27 known moons"
+    ],
+    "explorable": true,
+    "baseSize": 45,
+    "orbitRadius": 720,
+    "orbitSpeed": 0.012,
+    "orbitPhase": 0.7854,
+    "innerColor": { "r": 0.78, "g": 0.91, "b": 0.94, "a": 1 },
+    "outerColor": { "r": 0.47, "g": 0.72, "b": 0.78, "a": 1 },
+    "exploration": {
+      "gravity": 0.89,
+      "skyColorTop": { "r": 0.78, "g": 0.91, "b": 0.94, "a": 1 },
+      "skyColorBottom": { "r": 0.63, "g": 0.83, "b": 0.88, "a": 1 },
+      "terrainColor": { "r": 0.47, "g": 0.72, "b": 0.78, "a": 1 },
+      "landmarks": [
+        { "x": 420, "name": "Methane Clouds", "description": "Give Uranus its cyan color", "emoji": "~", "discovered": false },
+        { "x": 900, "name": "Extreme Tilt", "description": "Rotates nearly on its side", "emoji": "/", "discovered": false },
+        { "x": 1380, "name": "Ice Mantle", "description": "Ocean of water, ammonia, methane", "emoji": "*", "discovered": false }
+      ]
+    }
+  },
+
+  {
+    "id": "neptune",
+    "name": "Neptune",
+    "type": "Ice Giant",
+    "diameter": "49,244 km",
+    "mass": "1.024 x 10^26 kg",
+    "temperature": "-201C (average)",
+    "distance": "4.5 billion km (30 AU)",
+    "orbitalPeriod": "164.8 years",
+    "orbitalSpeed": "5.43 km/s",
+    "facts": [
+      "Windiest planet - 2,100 km/h",
+      "Discovered by mathematical prediction",
+      "Has 14 known moons including Triton"
+    ],
+    "explorable": true,
+    "baseSize": 42,
+    "orbitRadius": 840,
+    "orbitSpeed": 0.006,
+    "orbitPhase": 4.7124,
+    "innerColor": { "r": 0.38, "g": 0.5, "b": 0.82, "a": 1 },
+    "outerColor": { "r": 0.19, "g": 0.28, "b": 0.55, "a": 1 },
+    "exploration": {
+      "gravity": 1.14,
+      "skyColorTop": { "r": 0.38, "g": 0.5, "b": 0.82, "a": 1 },
+      "skyColorBottom": { "r": 0.25, "g": 0.38, "b": 0.69, "a": 1 },
+      "terrainColor": { "r": 0.19, "g": 0.28, "b": 0.56, "a": 1 },
+      "landmarks": [
+        { "x": 400, "name": "Great Dark Spot", "description": "Storm system size of Earth", "emoji": "@", "discovered": false },
+        { "x": 900, "name": "Supersonic Winds", "description": "Fastest winds in Solar System", "emoji": ">", "discovered": false },
+        { "x": 1400, "name": "Triton Geysers", "description": "Moon with nitrogen geysers", "emoji": "^", "discovered": false }
+      ]
+    }
+  }
+]

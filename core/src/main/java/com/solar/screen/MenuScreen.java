@@ -2,6 +2,7 @@ package com.solar.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -12,6 +13,7 @@ import com.solar.MainGame;
 public class MenuScreen extends BaseScreen {
 
     private MainGame game;
+    private Texture astronautTexture;
 
     public MenuScreen(MainGame game) {
         super(game);
@@ -21,6 +23,18 @@ public class MenuScreen extends BaseScreen {
     public void show() {
         super.show();
         setBackground("background/background.png");
+
+        astronautTexture = new Texture(Gdx.files.internal("Astronaut.png"));
+        Image astronautImage = new Image(astronautTexture);
+
+        // Position astronaut (adjust as needed)
+        Table astronautTable = new Table();
+        astronautTable.setFillParent(true);
+        astronautTable.right().bottom().pad(-200, 300, 100, 100);
+        astronautTable.setTransform(true);
+        astronautTable.add(astronautImage).size(972, 1188); // Adjust size
+        astronautTable.setRotation(-3); // nghiêng trái 20 độ
+        stage.addActor(astronautTable);
 
         // Title label
         Label titleLabel = new Label("SOLAR SYSTEM\nEXPLORER", skin);
@@ -35,14 +49,12 @@ public class MenuScreen extends BaseScreen {
 
         // Main buttons
         TextButton startButton = new TextButton("START", skin);
-        TextButton optionButton = new TextButton("OPTION", skin);
         TextButton exitButton = new TextButton("EXIT", skin);
 
         Table table = new Table();
         table.setFillParent(true);
-        table.left().bottom().padLeft(250).padBottom(100);
+        table.left().bottom().padLeft(250).padBottom(350);
         table.add(startButton).width(400).height(150).pad(10).row();
-        table.add(optionButton).width(400).height(150).pad(10).row();
         table.add(exitButton).width(400).height(150).pad(10);
         stage.addActor(table);
 
@@ -75,7 +87,8 @@ public class MenuScreen extends BaseScreen {
 
     @Override
     public void dispose() {
-        stage.dispose();
+        // BaseScreen.dispose() handles stage disposal
+        super.dispose();
     }
 
 }

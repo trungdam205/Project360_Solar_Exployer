@@ -1,6 +1,6 @@
-package com.solar. entity;
+package com.solar.planet;
 
-import com.badlogic. gdx.graphics. Color;
+import com.badlogic.gdx.graphics.Color;
 
 /**
  * Surface terrain feature (rocks, bumps, etc.)

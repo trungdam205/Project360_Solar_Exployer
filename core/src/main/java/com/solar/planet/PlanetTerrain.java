@@ -6,8 +6,6 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.solar.data.CelestialData;
-import com. solar.entity.Mountain;
-import com. solar.entity.TerrainFeature;
 
 /**
  * Terrain generation and rendering for planet exploration
@@ -21,6 +19,9 @@ public class PlanetTerrain {
     private final float worldWidth;
     private final float worldHeight;
 
+    // Cached colors to avoid GC in render loop
+    private final Color cachedDarkerColor;
+
     public PlanetTerrain(CelestialData planet, float groundY, float worldWidth, float worldHeight) {
         this.planet = planet;
         this.groundY = groundY;
@@ -28,6 +29,10 @@ public class PlanetTerrain {
         this.worldHeight = worldHeight;
         this.features = new Array<>();
         this.mountains = new Array<>();
+
+        // Pre-calculate darker color for ground gradient
+        this.cachedDarkerColor = new Color(planet.exploration.terrainColor).mul(0.75f);
+
         generate();
     }
 
@@ -113,13 +118,13 @@ public class PlanetTerrain {
     }
 
     private void renderGround(ShapeRenderer shapeRenderer, float viewLeft) {
-        shapeRenderer. begin(ShapeType.Filled);
-        shapeRenderer. setColor(planet.exploration.terrainColor);
+        shapeRenderer.begin(ShapeType.Filled);
+        shapeRenderer.setColor(planet.exploration.terrainColor);
         shapeRenderer.rect(viewLeft, 0, worldWidth * 3, groundY);
 
-        Color darker = new Color(planet.exploration.terrainColor).mul(0.75f);
+        // Use cached color instead of creating new Color each frame
         shapeRenderer.rect(viewLeft, groundY - 8, worldWidth * 3, 16,
-            darker, darker, planet.exploration. terrainColor, planet.exploration.terrainColor);
+            cachedDarkerColor, cachedDarkerColor, planet.exploration.terrainColor, planet.exploration.terrainColor);
         shapeRenderer.end();
     }
 }

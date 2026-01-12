@@ -3,22 +3,19 @@ package com.solar.screen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic. gdx.graphics. OrthographicCamera;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.MathUtils;
 import com.solar.MainGame;
+import com.solar.config.GameConfig;
 import com.solar.data.CelestialData;
-import com.solar.entity. Obstacle;
 import com.solar.planet.*;
+
+import static com.solar.config.GameConfig.CAMERA_LERP;
 
 /**
  * Planet exploration screen - refactored to use modular components
  */
 public class PlanetScreen extends BaseScreen {
-
-    // Constants
-    private static final float WORLD_EXTENT = 5000f;
-    private static final float TERRAIN_HEIGHT_RATIO = 0.28f;
-    private static final float CAMERA_LERP = 5f;
 
     // References
     private final CelestialData planet;
@@ -57,20 +54,16 @@ public class PlanetScreen extends BaseScreen {
         gameCamera.setToOrtho(false, WORLD_WIDTH, WORLD_HEIGHT);
 
         // World setup
-        worldWidth = WORLD_EXTENT;
-        groundY = WORLD_HEIGHT * TERRAIN_HEIGHT_RATIO;
+        worldWidth = GameConfig.WORLD_EXTENT;
+        groundY = WORLD_HEIGHT * GameConfig.TERRAIN_HEIGHT_RATIO;
         cameraX = WORLD_WIDTH / 2f;
 
-        // Initialize physics first (other components depend on it)
+        // Initialize physics (only once)
         physics = new PlanetPhysics(planet);
-        Gdx.app. log("PlanetScreen", "=== INITIALIZING ===");
-        Gdx.app. log("PlanetScreen", "Planet: " + planet.name);
+        Gdx.app.log("PlanetScreen", "=== INITIALIZING ===");
+        Gdx.app.log("PlanetScreen", "Planet: " + planet.name);
         Gdx.app.log("PlanetScreen", "Exploration: " + (planet.exploration != null ? "OK" : "NULL"));
-
-        // ...  rest of initialization
-
-        physics = new PlanetPhysics(planet);
-        Gdx.app. log("PlanetScreen", "Physics created: " + physics. getPlanetType());
+        Gdx.app.log("PlanetScreen", "Physics created: " + physics.getPlanetType());
         // Initialize components with physics
         player = new PlanetPlayer();
         player.init(150f, groundY, worldWidth, physics);

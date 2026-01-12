@@ -1,9 +1,12 @@
-package com.solar.actor;
+package com.solar.solarsystem;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 
+/**
+ * Visual representation of a celestial body in the solar system view
+ */
 public class CelestialBody {
     public String id;
     public String name;
@@ -36,7 +39,7 @@ public class CelestialBody {
     public boolean hasHeartRegion = false;
 
     public CelestialBody(String id, String name, float size, Color innerColor, Color outerColor) {
-        this. id = id;
+        this.id = id;
         this.name = name;
         this.baseSize = size;
         this.size = size;
@@ -66,7 +69,7 @@ public class CelestialBody {
     }
 
     public CelestialBody setCraters(boolean hasCraters) {
-        this. hasCraters = hasCraters;
+        this.hasCraters = hasCraters;
         return this;
     }
 
@@ -86,7 +89,7 @@ public class CelestialBody {
         this.diameter = diameter;
         this.mass = mass;
         this.temperature = temperature;
-        this. distance = distance;
+        this.distance = distance;
         this.orbitalPeriod = orbitalPeriod;
         this.orbitalSpeed = orbitalSpeed;
         this.facts = facts;
@@ -94,7 +97,7 @@ public class CelestialBody {
 
     public void setPosition(float x, float y) {
         this.x = x;
-        this. y = y;
+        this.y = y;
     }
 
     public void setSize(float size) {
@@ -130,8 +133,8 @@ public class CelestialBody {
         renderer.circle(x - size * 0.15f, y + size * 0.15f, size * 0.75f, 48);
 
         // Brighter core highlight
-        Color brightCore = new Color(innerColor).lerp(Color. WHITE, 0.3f);
-        renderer.setColor(brightCore. r, brightCore. g, brightCore. b, 0.6f);
+        Color brightCore = new Color(innerColor).lerp(Color.WHITE, 0.3f);
+        renderer.setColor(brightCore.r, brightCore.g, brightCore.b, 0.6f);
         renderer.circle(x - size * 0.25f, y + size * 0.25f, size * 0.4f, 32);
 
         // Special features
@@ -180,7 +183,7 @@ public class CelestialBody {
         renderer.setColor(1f, 0.6f, 0.1f, 0.25f);
         renderer.circle(x, y, glowSize, 48);
 
-        glowSize = size * 1.2f + MathUtils. sin(pulseTime * 2f) * size * 0.05f;
+        glowSize = size * 1.2f + MathUtils.sin(pulseTime * 2f) * size * 0.05f;
         renderer.setColor(1f, 0.7f, 0.2f, 0.4f);
         renderer.circle(x, y, glowSize, 48);
 
@@ -196,13 +199,13 @@ public class CelestialBody {
         renderer.circle(x - size * 0.2f, y + size * 0.2f, size * 0.6f, 48);
 
         // Bright core
-        renderer. setColor(1f, 1f, 0.95f, 0.8f);
+        renderer.setColor(1f, 1f, 0.95f, 0.8f);
         renderer.circle(x - size * 0.25f, y + size * 0.25f, size * 0.35f, 32);
     }
 
     private void renderContinents(ShapeRenderer renderer) {
         // Green continents for Earth
-        renderer. setColor(0.24f, 0.55f, 0.25f, 0.9f);
+        renderer.setColor(0.24f, 0.55f, 0.25f, 0.9f);
 
         // North America/Europe area
         renderer.circle(x - size * 0.2f, y + size * 0.15f, size * 0.25f, 16);
@@ -225,7 +228,7 @@ public class CelestialBody {
 
     private void renderPolarCap(ShapeRenderer renderer) {
         // Mars polar ice cap
-        renderer. setColor(1f, 1f, 1f, 0.5f);
+        renderer.setColor(1f, 1f, 1f, 0.5f);
         renderer.arc(x, y, size * 0.9f, 50, 80, 16);
     }
 
@@ -240,7 +243,7 @@ public class CelestialBody {
         float spotHeight = size * 0.15f;
 
         for (int i = 0; i < 8; i++) {
-            float angle = i * MathUtils. PI2 / 8;
+            float angle = i * MathUtils.PI2 / 8;
             float px = spotX + MathUtils.cos(angle) * spotWidth * 0.5f;
             float py = spotY + MathUtils.sin(angle) * spotHeight * 0.5f;
             renderer.circle(px, py, size * 0.06f, 8);
@@ -278,7 +281,7 @@ public class CelestialBody {
         // Draw ring segments
         int segments = 60;
         for (int i = 0; i < segments; i++) {
-            float angle1 = i * MathUtils. PI2 / segments;
+            float angle1 = i * MathUtils.PI2 / segments;
             float angle2 = (i + 1) * MathUtils.PI2 / segments;
 
             // Only draw front or back half
@@ -291,11 +294,11 @@ public class CelestialBody {
             float x1Inner = x + MathUtils.cos(angle1) * ringInner;
             float y1Inner = y + MathUtils.sin(angle1) * ringInner * tilt;
             float x1Outer = x + MathUtils.cos(angle1) * ringOuter;
-            float y1Outer = y + MathUtils. sin(angle1) * ringOuter * tilt;
+            float y1Outer = y + MathUtils.sin(angle1) * ringOuter * tilt;
 
-            float x2Inner = x + MathUtils. cos(angle2) * ringInner;
+            float x2Inner = x + MathUtils.cos(angle2) * ringInner;
             float y2Inner = y + MathUtils.sin(angle2) * ringInner * tilt;
-            float x2Outer = x + MathUtils. cos(angle2) * ringOuter;
+            float x2Outer = x + MathUtils.cos(angle2) * ringOuter;
             float y2Outer = y + MathUtils.sin(angle2) * ringOuter * tilt;
 
             renderer.triangle(x1Inner, y1Inner, x1Outer, y1Outer, x2Inner, y2Inner);
@@ -303,7 +306,7 @@ public class CelestialBody {
         }
 
         // Additional ring bands
-        if (! front) {
+        if (!front) {
             renderer.setColor(0.65f, 0.58f, 0.4f, 0.3f);
             for (int i = 0; i < segments; i++) {
                 float angle1 = i * MathUtils.PI2 / segments;
@@ -316,7 +319,7 @@ public class CelestialBody {
                 float midRing = size * 1.6f;
 
                 float x1 = x + MathUtils.cos(angle1) * midRing;
-                float y1 = y + MathUtils. sin(angle1) * midRing * tilt;
+                float y1 = y + MathUtils.sin(angle1) * midRing * tilt;
                 float x2 = x + MathUtils.cos(angle2) * midRing;
                 float y2 = y + MathUtils.sin(angle2) * midRing * tilt;
 

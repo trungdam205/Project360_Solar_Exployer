@@ -7,10 +7,9 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils. Disposable;
-import com.solar.actor.Star;
-import com. solar.celestial.CelestialBodyRenderer;
-import com. solar.data.CelestialData;
+import com.badlogic.gdx.utils.Disposable;
+import com.solar.render.CelestialBodyRenderer;
+import com.solar.data.CelestialData;
 
 /**
  * Rendering for Solar System screen

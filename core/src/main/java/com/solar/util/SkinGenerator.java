@@ -1,4 +1,4 @@
-package com.solar;
+package com.solar.util;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -8,16 +8,19 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
+/**
+ * Utility class for generating UI skins programmatically
+ */
 public class SkinGenerator {
 
     public static Skin createSkin() {
         Skin skin = new Skin();
 
         // Create pixmap for textures
-        Pixmap pixmap = new Pixmap(256, 256, Pixmap.Format. RGBA8888);
+        Pixmap pixmap = new Pixmap(256, 256, Pixmap.Format.RGBA8888);
 
         // White pixel (1,1 - 3x3)
-        pixmap. setColor(Color. WHITE);
+        pixmap.setColor(Color.WHITE);
         pixmap.fillRectangle(1, 1, 3, 3);
 
         // Button normal (5,1 - 24x24)
@@ -138,7 +141,7 @@ public class SkinGenerator {
     }
 
     private static void drawWindow(Pixmap pixmap, int x, int y, int w, int h) {
-        pixmap. setColor(new Color(0.04f, 0.08f, 0.16f, 0.95f));
+        pixmap.setColor(new Color(0.04f, 0.08f, 0.16f, 0.95f));
         pixmap.fillRectangle(x, y, w, h);
 
         pixmap.setColor(new Color(0.08f, 0.15f, 0.3f, 0.98f));
@@ -152,7 +155,7 @@ public class SkinGenerator {
     }
 
     private static void drawSliderBg(Pixmap pixmap, int x, int y, int w, int h) {
-        pixmap. setColor(new Color(0.05f, 0.1f, 0.2f, 0.8f));
+        pixmap.setColor(new Color(0.05f, 0.1f, 0.2f, 0.8f));
         pixmap.fillRectangle(x, y, w, h);
 
         pixmap.setColor(new Color(0.2f, 0.4f, 0.8f, 0.4f));
@@ -186,40 +189,40 @@ public class SkinGenerator {
     // ==================== STYLE BUILDERS ====================
 
     private static void buildLabelStyles(Skin skin) {
-        Label.LabelStyle defaultStyle = new Label. LabelStyle();
+        Label.LabelStyle defaultStyle = new Label.LabelStyle();
         defaultStyle.font = skin.getFont("default-font");
         defaultStyle.fontColor = Color.WHITE;
         skin.add("default", defaultStyle);
 
-        Label.LabelStyle titleStyle = new Label. LabelStyle();
+        Label.LabelStyle titleStyle = new Label.LabelStyle();
         titleStyle.font = skin.getFont("default-font");
-        titleStyle.fontColor = Color. CYAN;
-        skin. add("title", titleStyle);
+        titleStyle.fontColor = Color.CYAN;
+        skin.add("title", titleStyle);
     }
 
     private static void buildButtonStyles(Skin skin) {
         TextButton.TextButtonStyle defaultStyle = new TextButton.TextButtonStyle();
-        defaultStyle. font = skin.getFont("default-font");
+        defaultStyle.font = skin.getFont("default-font");
         defaultStyle.fontColor = Color.WHITE;
         defaultStyle.overFontColor = new Color(0.5f, 0.8f, 1f, 1f);
-        defaultStyle.downFontColor = Color. CYAN;
+        defaultStyle.downFontColor = Color.CYAN;
         defaultStyle.disabledFontColor = Color.GRAY;
         defaultStyle.up = new TextureRegionDrawable(skin.getRegion("button"));
-        defaultStyle. down = new TextureRegionDrawable(skin.getRegion("button-down"));
-        defaultStyle. over = new TextureRegionDrawable(skin.getRegion("button-over"));
+        defaultStyle.down = new TextureRegionDrawable(skin.getRegion("button-down"));
+        defaultStyle.over = new TextureRegionDrawable(skin.getRegion("button-over"));
         skin.add("default", defaultStyle);
 
-        TextButton. TextButtonStyle toggleStyle = new TextButton.TextButtonStyle();
-        toggleStyle. font = skin.getFont("default-font");
+        TextButton.TextButtonStyle toggleStyle = new TextButton.TextButtonStyle();
+        toggleStyle.font = skin.getFont("default-font");
         toggleStyle.fontColor = Color.WHITE;
         toggleStyle.overFontColor = new Color(0.5f, 0.8f, 1f, 1f);
-        toggleStyle. downFontColor = Color.CYAN;
-        toggleStyle. checkedFontColor = Color. CYAN;
-        toggleStyle.disabledFontColor = Color. GRAY;
-        toggleStyle.up = new TextureRegionDrawable(skin. getRegion("button"));
-        toggleStyle. down = new TextureRegionDrawable(skin.getRegion("button-down"));
-        toggleStyle. over = new TextureRegionDrawable(skin.getRegion("button-over"));
-        toggleStyle. checked = new TextureRegionDrawable(skin.getRegion("button-checked"));
+        toggleStyle.downFontColor = Color.CYAN;
+        toggleStyle.checkedFontColor = Color.CYAN;
+        toggleStyle.disabledFontColor = Color.GRAY;
+        toggleStyle.up = new TextureRegionDrawable(skin.getRegion("button"));
+        toggleStyle.down = new TextureRegionDrawable(skin.getRegion("button-down"));
+        toggleStyle.over = new TextureRegionDrawable(skin.getRegion("button-over"));
+        toggleStyle.checked = new TextureRegionDrawable(skin.getRegion("button-checked"));
         skin.add("toggle", toggleStyle);
     }
 
@@ -227,13 +230,13 @@ public class SkinGenerator {
         Slider.SliderStyle horizontalStyle = new Slider.SliderStyle();
         horizontalStyle.background = new TextureRegionDrawable(skin.getRegion("slider-background"));
         horizontalStyle.knob = new TextureRegionDrawable(skin.getRegion("slider-knob"));
-        horizontalStyle.knobOver = new TextureRegionDrawable(skin. getRegion("slider-knob-over"));
+        horizontalStyle.knobOver = new TextureRegionDrawable(skin.getRegion("slider-knob-over"));
         horizontalStyle.knobDown = new TextureRegionDrawable(skin.getRegion("slider-knob-down"));
         skin.add("default-horizontal", horizontalStyle);
     }
 
     private static void buildWindowStyles(Skin skin) {
-        Window.WindowStyle windowStyle = new Window. WindowStyle();
+        Window.WindowStyle windowStyle = new Window.WindowStyle();
         windowStyle.titleFont = skin.getFont("default-font");
         windowStyle.titleFontColor = Color.CYAN;
         windowStyle.background = new TextureRegionDrawable(skin.getRegion("window"));
@@ -241,8 +244,8 @@ public class SkinGenerator {
     }
 
     private static void buildScrollPaneStyles(Skin skin) {
-        ScrollPane. ScrollPaneStyle scrollStyle = new ScrollPane. ScrollPaneStyle();
-        scrollStyle. vScroll = new TextureRegionDrawable(skin.getRegion("scroll-vertical"));
+        ScrollPane.ScrollPaneStyle scrollStyle = new ScrollPane.ScrollPaneStyle();
+        scrollStyle.vScroll = new TextureRegionDrawable(skin.getRegion("scroll-vertical"));
         scrollStyle.vScrollKnob = new TextureRegionDrawable(skin.getRegion("scroll-knob-vertical"));
         scrollStyle.hScroll = new TextureRegionDrawable(skin.getRegion("scroll-horizontal"));
         scrollStyle.hScrollKnob = new TextureRegionDrawable(skin.getRegion("scroll-knob-horizontal"));
@@ -250,10 +253,10 @@ public class SkinGenerator {
     }
 
     private static void buildListStyles(Skin skin) {
-        List.ListStyle listStyle = new List. ListStyle();
+        List.ListStyle listStyle = new List.ListStyle();
         listStyle.font = skin.getFont("default-font");
-        listStyle. fontColorSelected = Color.CYAN;
-        listStyle.fontColorUnselected = Color. WHITE;
+        listStyle.fontColorSelected = Color.CYAN;
+        listStyle.fontColorUnselected = Color.WHITE;
         listStyle.selection = new TextureRegionDrawable(skin.getRegion("selection"));
         listStyle.background = new TextureRegionDrawable(skin.getRegion("list-background"));
         skin.add("default", listStyle);

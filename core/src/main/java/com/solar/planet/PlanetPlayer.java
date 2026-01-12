@@ -1,23 +1,23 @@
-package com. solar.planet;
+package com.solar.planet;
 
-import com.badlogic.gdx. Gdx;
-import com.badlogic.gdx. Input;
-import com. badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
-import com. solar.celestial.PlayerRenderer;
-import com. solar.entity.Obstacle;
+import com.solar.render.PlayerRenderer;
+import com.solar.config.GameConfig;
 
 /**
  * Player controller for planet exploration
  */
 public class PlanetPlayer {
 
-    // Constants
-    public static final float WIDTH = 100f;
-    public static final float HEIGHT = 100f;
-    private static final float WALK_SPEED = 280f;
-    private static final float RUN_SPEED = 420f;
+    // Use constants from GameConfig
+    public static final float WIDTH = GameConfig.PLAYER_WIDTH;
+    public static final float HEIGHT = GameConfig.PLAYER_HEIGHT;
+    private static final float WALK_SPEED = GameConfig.WALK_SPEED;
+    private static final float RUN_SPEED = GameConfig.RUN_SPEED;
 
     // Position & Movement
     private float x, y;

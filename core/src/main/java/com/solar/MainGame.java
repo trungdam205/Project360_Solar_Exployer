@@ -45,6 +45,9 @@ public class MainGame extends Game {
     public AssetManager assetManager;
     private Skin skin;
 
+    // ==================== AUDIO ====================
+    private com.solar.audio.AudioManager audioManager;
+
     // ==================== SCREENS (lazy initialization) ====================
     private SolarSystemScreen solarSystemScreen;
 
@@ -52,6 +55,7 @@ public class MainGame extends Game {
     public SpriteBatch getBatch() { return batch; }
     public ShapeRenderer getShapeRenderer() { return shapeRenderer; }
     public AssetManager getAssetManager() { return assetManager; }
+    public com.solar.audio.AudioManager getAudioManager() { return audioManager; }
 
     @Override
     public void create() {
@@ -61,6 +65,9 @@ public class MainGame extends Game {
 
         // Initialize asset manager
         assetManager = new AssetManager();
+
+        // Initialize audio manager
+        audioManager = new com.solar.audio.AudioManager();
 
         // Load and configure skin with custom fonts
         loadSkinWithFonts();
@@ -74,7 +81,11 @@ public class MainGame extends Game {
             this,
             "LOADING...",
             true,
-            () -> setScreen(new MenuScreen(MainGame.this))
+            () -> {
+                setScreen(new MenuScreen(MainGame.this));
+                // Start background music after loading
+                audioManager.playMusic(com.solar.audio.AudioAssets.BACKGROUND_MUSIC, true);
+            }
         ));
     }
 
@@ -274,6 +285,12 @@ public class MainGame extends Game {
         if (skin != null) {
             skin.dispose();
             skin = null;
+        }
+
+        // Dispose audio manager
+        if (audioManager != null) {
+            audioManager.dispose();
+            audioManager = null;
         }
 
         Gdx.app.log("MainGame", "All resources disposed");
