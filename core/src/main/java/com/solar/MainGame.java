@@ -50,6 +50,7 @@ public class MainGame extends Game {
 
     // ==================== GETTERS ====================
     public SpriteBatch getBatch() { return batch; }
+    public ShapeRenderer getShapeRenderer() { return shapeRenderer; }
     public AssetManager getAssetManager() { return assetManager; }
 
     @Override
