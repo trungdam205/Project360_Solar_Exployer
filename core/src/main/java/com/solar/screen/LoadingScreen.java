@@ -32,7 +32,7 @@ public class LoadingScreen extends BaseScreen {
         this.onLoadingFinished = onLoadingFinished;
 
         // Load UI skin using internal path relative to assets root
-        final String SKIN_PATH = "uiskin.json";
+        final String SKIN_PATH = "font/uiskin.json";
         if (!game.assetManager.isLoaded(SKIN_PATH)) {
             game.assetManager.load(SKIN_PATH, Skin.class);
             game.assetManager.finishLoading();

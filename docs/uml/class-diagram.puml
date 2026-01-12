@@ -1,0 +1,676 @@
+@startuml Solar System Explorer - Class Diagram
+
+' ============================================================
+' STYLING
+' ============================================================
+skinparam classAttributeIconSize 0
+skinparam classFontSize 12
+skinparam packageFontSize 14
+skinparam packageStyle rectangle
+skinparam linetype ortho
+
+' ============================================================
+' MAIN GAME
+' ============================================================
+class MainGame {
+    {static} +WORLD_WIDTH: float
+    {static} +WORLD_HEIGHT: float
+    +batch: SpriteBatch
+    +shapeRenderer: ShapeRenderer
+    +assetManager: AssetManager
+    +audioManager: AudioManager
+    --
+    +create()
+    +render()
+    +dispose()
+}
+
+' ============================================================
+' CONFIG PACKAGE
+' ============================================================
+class GameConfig {
+    {static} +WORLD_WIDTH: float
+    {static} +WORLD_HEIGHT: float
+    {static} +PLAYER_WIDTH: float
+    {static} +PLAYER_HEIGHT: float
+    {static} +WALK_SPEED: float
+    {static} +RUN_SPEED: float
+    {static} +BASE_JUMP_VELOCITY: float
+    {static} +GRAVITY_FORCE: float
+    {static} +EARTH_GRAVITY: float
+    {static} +CAMERA_LERP: float
+    {static} +WORLD_EXTENT: float
+    {static} +TERRAIN_HEIGHT_RATIO: float
+    {static} +SKIN_PATH: String
+    {static} +PLANET_ATLAS_PATH: String
+    {static} +PLAYER_ATLAS_PATH: String
+    {static} +BACKGROUND_PATH: String
+    {static} +OBSTACLE_PATH: String
+}
+
+' ============================================================
+' AUDIO PACKAGE
+' ============================================================
+class AudioAssets {
+    {static} +BACKGROUND_MUSIC: String
+}
+
+class AudioManager {
+    -musicCache: ObjectMap<String, Music>
+    -soundCache: ObjectMap<String, Sound>
+    -currentMusic: Music
+    -musicVolume: float
+    -soundVolume: float
+    -musicEnabled: boolean
+    -soundEnabled: boolean
+    --
+    +playMusic(path: String)
+    +playMusic(path: String, loop: boolean)
+    +stopMusic()
+    +pauseMusic()
+    +resumeMusic()
+    +playSound(path: String)
+    +setMusicVolume(volume: float)
+    +setSoundVolume(volume: float)
+    +getMusicVolume(): float
+    +getSoundVolume(): float
+    +setMusicEnabled(enabled: boolean)
+    +setSoundEnabled(enabled: boolean)
+    +isMusicEnabled(): boolean
+    +dispose()
+}
+
+' ============================================================
+' DATA PACKAGE
+' ============================================================
+class CelestialData {
+    +id: String
+    +name: String
+    +type: String
+    +diameter: String
+    +mass: String
+    +temperature: String
+    +distance: String
+    +orbitalPeriod: String
+    +orbitalSpeed: String
+    +facts: String[]
+    +explorable: boolean
+    +exploration: ExplorationData
+    +baseSize: float
+    +orbitRadius: float
+    +orbitSpeed: float
+    +orbitPhase: float
+    +innerColor: Color
+    +outerColor: Color
+    +hasRings: boolean
+    +hasGreatSpot: boolean
+    +hasPolarCap: boolean
+    +hasCraters: boolean
+    +hasContinents: boolean
+    +hasHeartRegion: boolean
+    --
+    {static} +createAllBodies(): Array<CelestialData>
+}
+
+class ExplorationData {
+    +skyColorTop: Color
+    +skyColorBottom: Color
+    +terrainColor: Color
+    +gravity: float
+    +landmarks: Array<Landmark>
+}
+
+class Landmark {
+    +x: float
+    +name: String
+    +description: String
+    +emoji: String
+    +discovered: boolean
+}
+
+CelestialData *-- ExplorationData
+ExplorationData *-- Landmark
+
+' ============================================================
+' SCREEN PACKAGE
+' ============================================================
+abstract class BaseScreen {
+    #WORLD_WIDTH: float
+    #WORLD_HEIGHT: float
+    #game: MainGame
+    #stage: Stage
+    #skin: Skin
+    #bgTexture: Texture
+    #backgroundImage: Image
+    -fadeOverlay: Image
+    -blackTexture: Texture
+    --
+    +BaseScreen(game: MainGame)
+    #setBackground(texturePath: String)
+    +resize(width: int, height: int)
+    +show()
+    #setScreenWithFade(nextScreen: Screen)
+    #addBackButton(onBack: Runnable)
+    +dispose()
+}
+
+class MenuScreen {
+    -game: MainGame
+    -astronautTexture: Texture
+    --
+    +show()
+    +render(delta: float)
+    +dispose()
+}
+
+class LoadingScreen {
+    -onLoadingFinished: Runnable
+    -progressBar: ProgressBar
+    -progressLabel: Label
+    -loadingMessage: String
+    -showProgressBar: boolean
+    -stateTime: float
+    --
+    +LoadingScreen(game, message, showProgress, onFinished)
+    -setupUI()
+    +render(delta: float)
+}
+
+class SolarSystemScreen {
+    -camera: OrthographicCamera
+    -state: SolarSystemState
+    -renderer: SolarSystemRenderer
+    -ui: SolarSystemUI
+    -input: SolarSystemInput
+    --
+    +show()
+    -onBodyClicked(body: CelestialData)
+    -goToPlanet(body: CelestialData)
+    -resetView()
+    -togglePause()
+    -toggleOrbits()
+    +render(delta: float)
+    +resize(width, height)
+    +dispose()
+}
+
+class PlanetScreen {
+    -planet: CelestialData
+    -previousScreen: BaseScreen
+    -gameCamera: OrthographicCamera
+    -cameraX: float
+    -physics: PlanetPhysics
+    -player: PlanetPlayer
+    -terrain: PlanetTerrain
+    -obstacles: PlanetObstacles
+    -ui: PlanetUI
+    -groundY: float
+    -worldWidth: float
+    -reachedGoal: boolean
+    --
+    +PlanetScreen(game, planet, previousScreen)
+    +show()
+    -toggleGravity()
+    -resetLevel()
+    +render(delta: float)
+    -handleInput()
+    -update(delta: float)
+    -checkObstacleCollisions()
+    +dispose()
+}
+
+BaseScreen <|-- MenuScreen
+BaseScreen <|-- LoadingScreen
+BaseScreen <|-- SolarSystemScreen
+BaseScreen <|-- PlanetScreen
+
+' ============================================================
+' SOLARSYSTEM PACKAGE
+' ============================================================
+class SolarSystemState {
+    -paused: boolean
+    -speed: float
+    -time: float
+    -zoom: float
+    -offsetX: float
+    -offsetY: float
+    -showOrbits: boolean
+    -dragging: boolean
+    --
+    +reset()
+    +update(delta: float)
+    +isPaused(): boolean
+    +togglePause()
+    +getZoom(): float
+    +setZoom(zoom: float)
+    +adjustZoom(delta: float)
+    +getOffsetX(): float
+    +getOffsetY(): float
+    +setOffset(x, y)
+    +isShowOrbits(): boolean
+    +toggleOrbits()
+}
+
+class SolarSystemRenderer {
+    -worldWidth: float
+    -worldHeight: float
+    -stars: Array<Star>
+    -bodies: Array<CelestialData>
+    -bodyX: float[]
+    -bodyY: float[]
+    -bodySizes: float[]
+    -bodyRenderer: CelestialBodyRenderer
+    --
+    +SolarSystemRenderer(worldWidth, worldHeight)
+    +update(delta, state)
+    -updatePositions(state)
+    +render(batch, shapeRenderer, camera, state, delta)
+    +dispose()
+}
+
+class SolarSystemUI {
+    -stage: Stage
+    -skin: Skin
+    -speedSlider: Slider
+    -zoomSlider: Slider
+    -pauseButton: TextButton
+    -orbitsButton: TextButton
+    -eduLabel: Label
+    -state: SolarSystemState
+    --
+    +init(onBack, onReset, onPauseToggle, onOrbitsToggle)
+    +update()
+    +updateZoomSlider(zoom)
+    +dispose()
+}
+
+class SolarSystemInput {
+    -worldWidth: float
+    -worldHeight: float
+    -camera: OrthographicCamera
+    -state: SolarSystemState
+    -renderer: SolarSystemRenderer
+    -bodyClickListener: BodyClickListener
+    -zoomChangeListener: ZoomChangeListener
+    --
+    +setup(stage: Stage)
+    +setBodyClickListener(listener)
+    +setZoomChangeListener(listener)
+}
+
+class CelestialBody {
+    +id: String
+    +name: String
+    +x: float
+    +y: float
+    +size: float
+    +baseSize: float
+    +innerColor: Color
+    +outerColor: Color
+    +accentColor: Color
+    +hasRings: boolean
+    +hasGreatSpot: boolean
+    +hasPolarCap: boolean
+    +hasCraters: boolean
+    +hasContinents: boolean
+    +hasHeartRegion: boolean
+    --
+    +setAccentColor(color): CelestialBody
+    +setRings(hasRings): CelestialBody
+    +setGreatSpot(hasSpot): CelestialBody
+    +setPolarCap(hasCap): CelestialBody
+    +setCraters(hasCraters): CelestialBody
+    +setContinents(hasContinents): CelestialBody
+    +setHeartRegion(hasHeart): CelestialBody
+    +setData(type, diameter, mass)
+    +setPosition(x, y)
+    +setSize(size)
+    +contains(px, py): boolean
+    +render(renderer: ShapeRenderer)
+}
+
+class Star {
+    +x: float
+    +y: float
+    +size: float
+    +twinkleDuration: float
+    +time: float
+    +baseOpacity: float
+    +color: Color
+    --
+    +Star(x, y, size, twinkleDuration)
+    +update(delta: float)
+    +render(renderer: ShapeRenderer)
+}
+
+SolarSystemScreen *-- SolarSystemState
+SolarSystemScreen *-- SolarSystemRenderer
+SolarSystemScreen *-- SolarSystemUI
+SolarSystemScreen *-- SolarSystemInput
+SolarSystemRenderer *-- Star
+SolarSystemRenderer o-- CelestialData
+
+' ============================================================
+' PLANET PACKAGE
+' ============================================================
+class PlanetPhysics {
+    {static} +EARTH_GRAVITY: float
+    {static} +GRAVITY_FORCE: float
+    {static} +BASE_JUMP_VELOCITY: float
+    -planet: CelestialData
+    -planetType: PlanetType
+    -planetGravityEnabled: boolean
+    -currentGravity: float
+    --
+    +PlanetPhysics(planet: CelestialData)
+    -determinePlanetType(planet): PlanetType
+    +toggleGravity()
+    +reset()
+    +getJumpVelocity(): float
+    +getGravityDelta(delta): float
+    {static} +calculateMaxJumpHeight(gravity): float
+    +getEarthMaxJumpHeight(): float
+    +getPlanetMaxJumpHeight(): float
+    +isPlanetGravityEnabled(): boolean
+    +getCurrentGravity(): float
+    +getPlanetType(): PlanetType
+}
+
+enum PlanetType {
+    LOW_GRAVITY
+    HIGH_GRAVITY
+    NORMAL_GRAVITY
+}
+
+class PlanetPlayer {
+    {static} +WIDTH: float
+    {static} +HEIGHT: float
+    -WALK_SPEED: float
+    -RUN_SPEED: float
+    -x: float
+    -y: float
+    -velocityY: float
+    -isJumping: boolean
+    -movingLeft: boolean
+    -movingRight: boolean
+    -isRunning: boolean
+    -isDead: boolean
+    -bounds: Rectangle
+    -standingOnObstacle: Obstacle
+    -renderer: PlayerRenderer
+    -groundY: float
+    -worldWidth: float
+    -physics: PlanetPhysics
+    --
+    +init(startX, groundY, worldWidth, physics)
+    +reset()
+    +handleInput()
+    +jump()
+    +update(delta: float)
+    -updateBounds()
+    +getX(): float
+    +getY(): float
+    +getBounds(): Rectangle
+    +isJumping(): boolean
+    +isDead(): boolean
+    +setDead(dead)
+    +render(batch: SpriteBatch)
+    +dispose()
+}
+
+class PlanetTerrain {
+    -features: Array<TerrainFeature>
+    -mountains: Array<Mountain>
+    -planet: CelestialData
+    -groundY: float
+    -worldWidth: float
+    -worldHeight: float
+    -cachedDarkerColor: Color
+    --
+    +PlanetTerrain(planet, groundY, worldWidth, worldHeight)
+    -generate()
+    -generateMountains()
+    -generateFeatures()
+    +render(shapeRenderer, cameraX)
+    -renderSky(shapeRenderer, viewLeft)
+    -renderMountains(shapeRenderer, cameraX, viewLeft, viewRight)
+    -renderFeatures(shapeRenderer, viewLeft, viewRight)
+    -renderGround(shapeRenderer, viewLeft)
+}
+
+class PlanetObstacles {
+    -obstacles: Array<Obstacle>
+    -textures: ObjectMap<String, Texture>
+    -planet: CelestialData
+    -physics: PlanetPhysics
+    -groundY: float
+    -worldWidth: float
+    -goalX: float
+    -goalBounds: Rectangle
+    --
+    +PlanetObstacles(planet, groundY, worldWidth, physics)
+    -loadTextures()
+    -generate()
+    -generateLowGravityObstacles(earthJump, planetJump)
+    -generateHighGravityObstacles(earthJump, planetJump)
+    -generateNormalObstacles(earthJump)
+    -createWall(x, height): Obstacle
+    +getObstacles(): Array<Obstacle>
+    +getGoalX(): float
+    +getGoalBounds(): Rectangle
+    +render(batch, shapeRenderer)
+    +dispose()
+}
+
+class PlanetUI {
+    -stage: Stage
+    -skin: Skin
+    -planet: CelestialData
+    -physics: PlanetPhysics
+    -worldWidth: float
+    -worldHeight: float
+    -onBack: Runnable
+    -onToggleGravity: Runnable
+    -onRetry: Runnable
+    -gravityStatusLabel: Label
+    -gravityButton: TextButton
+    -hintLabel: Label
+    -victoryWindow: Window
+    -deathWindow: Window
+    --
+    +init(onBack, onToggleGravity, onRetry)
+    -createTopBar()
+    -createGravityPanel()
+    -createHintLabel()
+    -createControlsHint()
+    -createVictoryWindow()
+    -createDeathWindow()
+    +updateGravityStatus(enabled, gravity)
+    +showVictory()
+    +showDeath()
+    +hidePopups()
+    +updateHintVisibility(playerX)
+}
+
+class Obstacle {
+    +x: float
+    +y: float
+    +width: float
+    +height: float
+    +type: Type
+    +color: Color
+    +bounds: Rectangle
+    +texture: Texture
+    --
+    +Obstacle()
+    +Obstacle(x, y, width, height, type)
+    +updateBounds()
+    +isCollidable(): boolean
+    +isDeadly(): boolean
+}
+
+enum Type {
+    WALL
+    SPIKE
+    SIGN
+    DECORATION
+}
+
+class Mountain {
+    +x: float
+    +width: float
+    +height: float
+    +color: Color
+    --
+    +Mountain()
+    +Mountain(x, width, height, color)
+}
+
+class TerrainFeature {
+    +x: float
+    +width: float
+    +height: float
+    +color: Color
+    --
+    +TerrainFeature()
+    +TerrainFeature(x, width, height, color)
+}
+
+PlanetPhysics +-- PlanetType
+Obstacle +-- Type
+PlanetScreen *-- PlanetPhysics
+PlanetScreen *-- PlanetPlayer
+PlanetScreen *-- PlanetTerrain
+PlanetScreen *-- PlanetObstacles
+PlanetScreen *-- PlanetUI
+PlanetTerrain *-- Mountain
+PlanetTerrain *-- TerrainFeature
+PlanetObstacles *-- Obstacle
+PlanetPlayer o-- PlanetPhysics
+PlanetPlayer *-- PlayerRenderer
+
+' ============================================================
+' RENDER PACKAGE
+' ============================================================
+class CelestialBodyRenderer {
+    -atlas: TextureAtlas
+    -planetTextures: ObjectMap<String, TextureRegion>
+    -pulseTime: float
+    {static} -SUN_GLOW_OUTER: Color
+    {static} -SUN_GLOW_MID: Color
+    {static} -SUN_GLOW_INNER: Color
+    --
+    +CelestialBodyRenderer()
+    +update(delta: float)
+    +renderSunGlow(shapeRenderer, x, y, size)
+    +render(batch, body, x, y, size)
+    +renderFallbackShape(shapeRenderer, body, x, y, size)
+    -renderHeartRegion(shapeRenderer, x, y, size)
+    -renderCraters(shapeRenderer, x, y, size)
+    +hasTexture(bodyId): boolean
+    +dispose()
+}
+
+class PlayerRenderer {
+    -atlas: TextureAtlas
+    -idleAnimation: Animation<TextureRegion>
+    -walkLeftAnimation: Animation<TextureRegion>
+    -walkRightAnimation: Animation<TextureRegion>
+    -runLeftAnimation: Animation<TextureRegion>
+    -runRightAnimation: Animation<TextureRegion>
+    -stateTime: float
+    -currentState: PlayerState
+    -facingRight: boolean
+    -width: float
+    -height: float
+    --
+    +PlayerRenderer()
+    -loadAnimations()
+    -addRegionIfExists(frames, regionName)
+    +update(delta, movingLeft, movingRight, isRunning)
+    +render(batch, x, y)
+    +render(batch, x, y, customWidth, customHeight)
+    -getCurrentFrame(): TextureRegion
+    +setState(state: PlayerState)
+    +getState(): PlayerState
+    +setFacingRight(facingRight)
+    +isFacingRight(): boolean
+    +setSize(width, height)
+    +dispose()
+}
+
+enum PlayerState {
+    IDLE
+    WALKING
+    RUNNING
+    JUMPING
+}
+
+PlayerRenderer +-- PlayerState
+SolarSystemRenderer *-- CelestialBodyRenderer
+
+' ============================================================
+' UTIL PACKAGE
+' ============================================================
+class SkinGenerator {
+    {static} +createSkin(): Skin
+    {static} -drawButton(pixmap, x, y, w, h, bg, border)
+    {static} -drawWindow(pixmap, x, y, w, h)
+    {static} -drawSliderBg(pixmap, x, y, w, h)
+    {static} -drawSliderKnob(pixmap, x, y, w, h, color)
+    {static} -drawScrollBar(pixmap, x, y, w, h)
+    {static} -drawScrollKnob(pixmap, x, y, w, h)
+    {static} -buildLabelStyles(skin)
+    {static} -buildButtonStyles(skin)
+    {static} -buildSliderStyles(skin)
+    {static} -buildWindowStyles(skin)
+    {static} -buildScrollPaneStyles(skin)
+    {static} -buildListStyles(skin)
+}
+
+' ============================================================
+' EXTERNAL / LIBGDX STUBS
+' ============================================================
+class SpriteBatch <<external>>
+class ShapeRenderer <<external>>
+class AssetManager <<external>>
+class Stage <<external>>
+class Skin <<external>>
+class Texture <<external>>
+class Image <<external>>
+class Screen <<external>>
+class ProgressBar <<external>>
+class Slider <<external>>
+class TextButton <<external>>
+class Window <<external>>
+class OrthographicCamera <<external>>
+class Rectangle <<external>>
+class Music <<external>>
+class Sound <<external>>
+class TextureAtlas <<external>>
+class TextureRegion <<external>>
+class Color <<external>>
+interface Runnable <<external>>
+
+hide <<external>> members
+hide <<external>> methods
+
+' ============================================================
+' RELATIONSHIPS
+' ============================================================
+
+' === MainGame Relationships ===
+MainGame *-- AudioManager
+MainGame --> BaseScreen : manages
+MainGame ..> GameConfig : uses
+MainGame ..> SkinGenerator : uses
+
+' === Screen Dependencies ===
+BaseScreen o-- MainGame
+LoadingScreen ..> CelestialData : loads
+
+' === Data Relationships ===
+CelestialData --> CelestialBody : creates
+AudioManager o-- AudioAssets
+
+@enduml

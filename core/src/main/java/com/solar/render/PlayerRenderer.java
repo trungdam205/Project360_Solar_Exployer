@@ -44,7 +44,7 @@ public class PlayerRenderer implements Disposable {
 
     private void loadAnimations() {
         try {
-            atlas = new TextureAtlas(Gdx.files.internal("player.atlas"));
+            atlas = new TextureAtlas(Gdx.files.internal("images/player.atlas"));
 
             // Idle animation
             TextureRegion idleFrame = atlas.findRegion("idle");

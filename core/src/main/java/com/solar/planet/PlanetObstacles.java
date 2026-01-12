@@ -59,7 +59,7 @@ public class PlanetObstacles implements Disposable {
                     textures.put("spike", new Texture(Gdx.files.internal(spikePath)));
                 }
             }
-            String flagPath = "woodenboard2.png";
+            String flagPath = "images/woodenboard2.png";
             if (Gdx.files.internal(flagPath).exists()) {
                 textures.put("flag", new Texture(Gdx.files.internal(flagPath)));
             }

@@ -160,11 +160,11 @@ public class PlanetUI {
         title.setColor(Color.GOLD);
 
         Label message = new Label("You mastered " + planet.name + "'s gravity!", skin);
-        message.setFontScale(1.3f);
+        message.setFontScale(1.5f);
 
         Label fact = new Label(Planet_Fact(), skin, "body");
         fact.setWrap(true);
-        fact.setFontScale(1.0f);
+        fact.setFontScale(1.3f);
         fact.setColor(Color.WHITE);
 
         TextButton continueBtn = new TextButton("Back To Space", skin);
@@ -185,9 +185,9 @@ public class PlanetUI {
 
         content.add(title).colspan(2).padBottom(12).row();
         content.add(message).colspan(2).padBottom(10).row();
-        content.add(fact).colspan(2).width(500).padBottom(18).row();
-        content.add(retryBtn).width(170).height(50).padRight(15);
-        content.add(continueBtn).width(200).height(50);
+        content.add(fact).colspan(2).width(800).padBottom(18).row();
+        content.add(retryBtn).width(200).height(50).padRight(15);
+        content.add(continueBtn).width(250).height(50);
 
         victoryWindow.add(content).expand().fill().pad(18);
         stage.addActor(victoryWindow);
@@ -332,59 +332,58 @@ public class PlanetUI {
     private String Planet_Fact() {
         switch (planet.id) {
             case "mercury":
-            return "Temperature: 427 to -173 celcius degree.\n" +
-                   "Weather: No atmosphere, no wind or rain.\n" +
-                   "Rocks: Hard silicate rocks, heavily cratered.\n" +
-                   "Gravity: 0.38x Earth. Jump 3x higher!\n" +
-                "Fun Fact: Closest to Sun but not the hottest. Shrinking as core cools.";
+                return "Temperature: 427 to -173 Celcius degree.\n" +
+                    "Weather: No atmosphere, no wind or rain.\n" +
+                    "Rocks: Hard silicate rocks, heavily cratered.\n" +
+                    "Gravity: 0.38x Earth. Jump 3x higher!\n" +
+                    "Fun Fact: Mercury is closest to Sun but not the hottest.";
 
             case "venus":
-            return "Temperature: Hottest planet (~464 celcius degree).\n" +
-                   "Weather: Thick clouds, sulfuric acid rain.\n" +
-                   "Rocks: Volcanic basalt, active volcanoes.\n" +
-                   "Gravity: 0.91x Earth (almost same as Earth).\n" +
-                "Fun Fact: Rotates backwards (Sun rises in West).";
+                return "Temperature: Hottest planet (~464 Celcius degree).\n" +
+                    "Weather: Thick clouds, sulfuric acid rain.\n" +
+                    "Rocks: Volcanic basalt, active volcanoes.\n" +
+                    "Gravity: 0.91x Earth (almost same as Earth).\n" +
+                    "Fun Fact: Sun rises in the West on Venus.";
 
             case "moon":
-            return "Temperature: -173 to 127 celcius degree.\n" +
-                   "Weather: Silent, no wind, no atmosphere.\n" +
-                   "Rocks: Covered in regolith (rocky dust).\n" +
-                   "Gravity: 0.17x Earth (1/6th). Lift heavy rocks easily.\n" +
-                "Fun Fact: Footprints stay preserved for 50+ years.";
+                return "Temperature: -173 to 127 Celcius degree.\n" +
+                    "Weather: Silent, no wind, no atmosphere.\n" +
+                    "Rocks: Covered in regolith (rocky dust).\n" +
+                    "Gravity: Just 1/6 Earth's gravity, you can lift heavy rocks easily.\n" +
+                    "Fun Fact: Footprints from 50 years ago still stay preserved.";
 
             case "mars":
-            return "Temperature: Average -62 celcius degree. Red dust storms.\n" +
-                   "Weather: CO2 snow falls occasionally.\n" +
-                   "Rocks: Rusted iron-bearing basalt (Red dust).\n" +
-                   "Gravity: 0.38x Earth. Throw balls 3x farther.\n" +
-                "Fun Fact: Features blue sunsets unlike Earth.";
-
+                return "Temperature: Average -62 Celcius degree. Red dust storms.\n" +
+                    "Weather: CO2 snow falls occasionally.\n" +
+                    "Rocks: Rusted iron-bearing basalt (Red dust).\n" +
+                    "Gravity: 0.38x Earth. Throw balls 3x farther.\n" +
+                    "Fun Fact: Features blue sunsets unlike Earth.";
             case "jupiter":
-            return "Temperature: -145 celcius degree in upper clouds.\n" +
-                   "Weather: Violent storms. Great Red Spot raging 300+ yrs.\n" +
-                   "Structure: Massive gas giant.\n" +
-                   "Gravity: 2.53x Earth. 50kg feels like 126kg.\n" +
-                "Fun Fact: Deflects asteroids, protecting Earth.";
+                return "Temperature: -145 Celcius degree in upper clouds.\n" +
+                    "Weather: Violent storms. Great Red Spot raging 300+ yrs.\n" +
+                    "Structure: Massive gas giant.\n" +
+                    "Gravity: 2.53x Earth. 50kg feels like 126kg.\n" +
+                    "Fun Fact: Deflects asteroids, protecting Earth.";
 
             case "saturn":
-            return "Temperature: Average -178 celcius degree.\n" +
-                   "Weather: Winds faster than jets. Hexagon storm at North Pole.\n" +
-                   "Gravity: 1.07x Earth (slightly heavier).\n" +
-                "Fun Fact: Low density - would float on water!";
+                return "Temperature: Average -178 Celcius degree.\n" +
+                    "Weather: Winds faster than jets. Hexagon storm at North Pole.\n" +
+                    "Gravity: 1.07x Earth (slightly heavier).\n" +
+                    "Fun Fact: Low density - would float on water!";
 
             case "uranus":
-            return "Temperature: Coldest planet (-224 celcius degree).\n" +
-                   "Weather: Methane atmosphere (pale blue), cold winds.\n" +
-                   "Rocks: No solid surface. Compressed ice/gas.\n" +
-                   "Gravity: 0.89x Earth.\n" + // [cite: 95]
-                "Fun Fact: Rotates on its side like a rolling ball.";
+                return "Temperature: Coldest planet (-224 Celcius degree).\n" +
+                    "Weather: Methane atmosphere (pale blue), cold winds.\n" +
+                    "Rocks: No solid surface. Compressed ice/gas.\n" +
+                    "Gravity: 0.89x Earth.\n" + // [cite: 95]
+                    "Fun Fact: Rotates on its side like a rolling ball.";
 
             case "neptune":
-            return "Temperature: Average -214 celcius degree.\n" +
-                   "Weather: Strongest winds (2,000 km/h).\n" +
-                   "Rocks: Ice giant with small rocky core.\n" +
-                   "Gravity: 1.14x Earth.\n" +
-                "Fun Fact: Immense pressure may create diamond rain.";
+                return "Temperature: Average -214 Celcius degree.\n" +
+                    "Weather: Strongest winds (2,000 km/h).\n" +
+                    "Rocks: Ice giant with small rocky core.\n" +
+                    "Gravity: 1.14x Earth.\n" +
+                    "Fun Fact: Immense pressure may create diamond rain.";
 
             default:
                 return "Gravity conquered! Ready for the next mission.";

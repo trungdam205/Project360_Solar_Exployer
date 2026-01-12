@@ -24,7 +24,7 @@ public class MenuScreen extends BaseScreen {
         super.show();
         setBackground("background/background.png");
 
-        astronautTexture = new Texture(Gdx.files.internal("Astronaut.png"));
+        astronautTexture = new Texture(Gdx.files.internal("images/Astronaut.png"));
         Image astronautImage = new Image(astronautTexture);
 
         // Position astronaut (adjust as needed)

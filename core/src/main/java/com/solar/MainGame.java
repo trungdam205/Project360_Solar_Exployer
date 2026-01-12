@@ -22,12 +22,12 @@ public class MainGame extends Game {
 
     // ==================== CONSTANTS ====================
     // Remove stray spaces in resource paths and align to assets folder layout
-    private static final String SKIN_PATH = "uiskin.json";
-    private static final String TITLE_FONT_PATH = "titletext.ttf";
-    private static final String BODY_FONT_PATH = "bodytext.ttf";
+    private static final String SKIN_PATH = "font/uiskin.json";
+    private static final String TITLE_FONT_PATH = "font/titletext.ttf";
+    private static final String BODY_FONT_PATH = "font/bodytext.ttf";
     private static final String ATLAS_PATH = "planets.atlas"; // Keep if you truly have this; otherwise consider removing
-    private static final String PLANET_ATLAS_PATH = "planets.atlas"; // assets/planets.atlas
-    private static final String PLAYER_ATLAS_PATH = "player.atlas";  // assets/player.atlas
+    private static final String PLANET_ATLAS_PATH = "images/player.atlas"; // assets/planets.atlas
+    private static final String PLAYER_ATLAS_PATH = "images/player.atlas";  // assets/player.atlas
 
     // Screen dimensions
     public static final float WORLD_WIDTH = 1920;

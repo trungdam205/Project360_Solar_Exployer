@@ -1,0 +1,24 @@
+Obstacle/JupiterObstacle1.png
+Obstacle/JupiterSpike.png
+Obstacle/MarsObstacle1.png
+Obstacle/MercuryObstacle1.png
+Obstacle/MoonObstacle1.png
+Obstacle/NeptuneObstacle1.png
+Obstacle/NeptuneSpike.png
+Obstacle/SaturnObstacle1.png
+Obstacle/SaturnSpike.png
+Obstacle/UranusObstacle1.png
+Obstacle/VenusObstacle1.png
+atlas planets.tpproj
+atlas player.tpproj
+audio/music.mp3
+background/background.png
+data/celestial_data.json
+images/assets.atlas
+images/assets.png
+maps/demo_planet.tmx
+maps/tileset.png
+maps/tileset.txt
+planets/planets.atlas
+planets/planets.png
+

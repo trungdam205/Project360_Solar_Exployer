@@ -23,7 +23,7 @@ public class GameConfig {
     public static final float TERRAIN_HEIGHT_RATIO = 0.28f;
 
     // Asset paths
-    public static final String SKIN_PATH = "uiskin.json";
+    public static final String SKIN_PATH = "font/uiskin.json";
     public static final String PLANET_ATLAS_PATH = "planets/planets.atlas";
     public static final String PLAYER_ATLAS_PATH = "player.atlas";
     public static final String BACKGROUND_PATH = "background/background.png";

@@ -37,7 +37,6 @@ dependencies {
   implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
   implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
   implementation "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
-  // --- THÊM DÒNG NÀY ---
   implementation "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
   if(enableGraalNative == 'true') {
     implementation "io.github.berstanio:gdx-svmhelper-backend-lwjgl3:$graalHelperVersion"
@@ -151,7 +150,7 @@ construo {
       register("winX64", Target.Windows) {
         architecture.set(Target.Architecture.X86_64)
         // Optional: icon for Windows, as a PNG
-        icon.set(project.file("icons/logo.png"))
+        icon.set(project.file("logo/logo.png"))
         jdkUrl.set("https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.15%2B6/OpenJDK17U-jdk_x64_windows_hotspot_17.0.15_6.zip")
         // Uncomment the next line to show a console when the game runs, to print messages.
         //useConsole.set(true)

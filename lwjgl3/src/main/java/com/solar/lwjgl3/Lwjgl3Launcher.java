@@ -22,7 +22,7 @@ public class Lwjgl3Launcher {
 
     private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {
         Lwjgl3ApplicationConfiguration configuration = new Lwjgl3ApplicationConfiguration();
-        configuration.setTitle("SolarExplorerModuleC");
+        configuration.setTitle("SolarSystemExplorer");
         configuration.setWindowedMode(1280, 800);
         configuration.setResizable(true);
 
@@ -35,7 +35,6 @@ public class Lwjgl3Launcher {
                 }
             }
         });
-        configuration.setWindowIcon("libgdx128.png", "libgdx64.png", "libgdx32.png", "libgdx16.png");
 
         //// This should improve compatibility with Windows machines with buggy OpenGL drivers, Macs
         //// with Apple Silicon that have to emulate compatibility with OpenGL anyway, and more.
