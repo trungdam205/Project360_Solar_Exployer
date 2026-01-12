@@ -1,107 +1,273 @@
 package com.solar.screen;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.solar.MainGame;
-import com.solar.data.PlanetData;
-import com.solar.data.PlanetDatabase;
-import com.solar.data.PlanetType;
-import com.solar.ui.GameHud;
+import com.solar.actor.PlayerActor;
+import com.solar.actor.obstacle.RockObstacle;
+import com.solar.actor.obstacle.SpineRockObstacle;
+import com.solar.data.*;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.math.Rectangle;
+import com.solar.actor.obstacle.Obstacle;
 
 public class PlanetScreen extends BaseScreen {
 
     private PlanetType planet;
     private PlanetData data;
-    private GameHud hud;
+    private PlayerActor player;
+    private float groundLineY;
+    private Group actorLayer;
+    private ShapeRenderer debugRenderer = new ShapeRenderer();
 
     public PlanetScreen(MainGame game, PlanetType planet) {
         super(game);
         this.planet = planet;
-
-        // Lấy dữ liệu hành tinh từ Database
         this.data = PlanetDatabase.get(planet);
 
-        // --- 1. SETUP BACKGROUND ---
-        // Sử dụng hàm có sẵn của BaseScreen
-        setBackground("background/background.png");
+        addBackButton(() ->
+            setScreenWithFade(new SolarSystemScreen(game))
+        );
 
-        // Disable background touch so underlying game input is not blocked
-        if (bgImage != null) {
-            bgImage.setTouchable(Touchable.disabled);
-        }
-
-        // --- 2. SETUP NÚT BACK ---
-        addBackButton(() -> {
-            // Chuyển về màn hình hệ mặt trời
-            game.setScreen(new SolarSystemScreen(game));
-        });
-
-        // 3. Setup HUD: create with a reasonable font scale
-        hud = new GameHud(game.getBatch(), game.getSkin().getFont("body-font"), 0.8f);
-
-        // Cập nhật thông tin lên HUD nếu dữ liệu tồn tại
-        if (data != null) {
-            hud.updateInfo(
-                data.gravity,
-                data.weather,
-                data.atmosphere,
-                data.surfaceType,
-                data.primaryRes
-            );
-        }
+        Gdx.input.setInputProcessor(stage);
     }
 
     @Override
     public void show() {
-        super.show(); // Init InputProcessor cơ bản của stage
+        super.show();
 
-        if (data != null) {
-            System.out.println("Entered: " + data.displayName);
+        // ===== LAYERS =====
+        Group starLayer   = new Group();
+        Group planetLayer = new Group();
+        actorLayer  = new Group();
+
+        stage.addActor(starLayer);
+        stage.addActor(planetLayer);
+        stage.addActor(actorLayer);
+
+        // ===== STAR BACKGROUND =====
+        Texture starTexture =
+            new Texture(Gdx.files.internal("background/background.png"));
+
+        Image starBg = new Image(starTexture);
+        starBg.setSize(
+            stage.getViewport().getWorldWidth(),
+            stage.getViewport().getWorldHeight()
+        );
+        starBg.setPosition(0, 0);
+
+        starLayer.addActor(starBg);
+
+        // ===== PLANET = GROUND =====
+        Texture groundTexture =
+            new Texture(Gdx.files.internal(data.texturePathPlanetScreen));
+
+        Image ground = new Image(groundTexture);
+
+        ground.setSize(
+            stage.getViewport().getWorldWidth(),
+            groundTexture.getHeight()
+        );
+        ground.setPosition(0, 0);
+        planetLayer.addActor(ground);
+
+        // ===== GROUND LINE TỪ DATABASE =====
+        groundLineY = ground.getHeight() * data.groundHeightRatio;
+
+        // ===== PLAYER =====
+        player = new PlayerActor(data.gravity, groundLineY);
+        player.setPosition(50, groundLineY);
+        actorLayer.addActor(player);
+
+        // ===== OBSTACLES =====
+        if (data.obstacles != null) {
+            for (ObstacleData o : data.obstacles) {
+                Texture tex = new Texture(Gdx.files.internal(o.texturePath));
+
+                Obstacle obstacle;
+
+                switch (o.type) {
+                    case ROCK:
+                        obstacle = new RockObstacle(
+                            tex,
+                            o.x, o.y,
+                            o.width, o.height
+                        );
+                        break;
+
+                    case SPINE:
+                        obstacle = new SpineRockObstacle(
+                            tex,
+                            o.x, o.y,
+                            o.width, o.height,
+                            50, groundLineY // respawn
+                        );
+                        break;
+
+                    default:
+                        continue;
+                }
+
+                actorLayer.addActor(obstacle);
+
+                actorLayer.addActor(obstacle); // ⚠️ dùng actorLayer
+            }
         }
 
-        // 4. Setup input multiplexer: HUD input first, then stage
-        InputMultiplexer multiplexer = new InputMultiplexer();
+        // ===== GRAVITY COMPARISON UI =====
+        Table gravityTable = new Table();
+        gravityTable.setFillParent(true);
+        gravityTable.bottom().right().pad(40);
 
-        if (hud != null) {
-            multiplexer.addProcessor(hud.stage);  // Ưu tiên 1: HUD
-        }
-        multiplexer.addProcessor(this.stage);     // Ưu tiên 2: Nút Back
+// Button: Earth's Gravity
+        TextButton earthGravityBtn =
+            new TextButton("Earth's Gravity", skin);
 
-        Gdx.input.setInputProcessor(multiplexer);
+// Button: Planet Gravity
+        TextButton planetGravityBtn =
+            new TextButton(data.displayName + "'s Gravity", skin);
+
+// ===== ACTIONS =====
+        earthGravityBtn.addListener(e -> {
+            if (!earthGravityBtn.isPressed()) return false;
+            player.setGravity(9.81f);
+            return true;
+        });
+
+        planetGravityBtn.addListener(e -> {
+            if (!planetGravityBtn.isPressed()) return false;
+            player.setGravity(data.gravity);
+            return true;
+        });
+
+// ===== LAYOUT =====
+        gravityTable.add(earthGravityBtn)
+            .width(300)
+            .height(70)
+            .padBottom(15)
+            .row();
+
+        gravityTable.add(planetGravityBtn)
+            .width(300)
+            .height(70);
+
+        stage.addActor(gravityTable);
+
+        // ===== UI =====
+        addBackButton(() ->
+            setScreenWithFade(new SolarSystemScreen(game))
+        );
     }
 
     @Override
     public void render(float delta) {
+        Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // Vẽ lớp dưới: Background + Nút Back
-        if (stage != null) {
-            stage.getViewport().apply();
-            stage.act(delta);
-            stage.draw();
+        float deltaX = player.getVelocityX() * delta;
+        float nextX = player.getX() + deltaX;
+
+        for (Actor a : actorLayer.getChildren()) {
+            if (!(a instanceof Obstacle)) continue;
+
+            Obstacle o = (Obstacle) a;
+
+            // ✅ CHỈ CẦN OVERLAP THEO Y
+            boolean overlapY =
+                player.getY() < o.getY() + o.getHeight() &&
+                    player.getY() + player.getHeight() > o.getY();
+
+            if (!overlapY) continue;
+
+            // 👉 ĐANG ĐI SANG PHẢI
+            if (deltaX > 0 &&
+                player.getX() + player.getWidth() <= o.getX() &&
+                nextX + player.getWidth() > o.getX()) {
+
+                nextX = o.getX() - player.getWidth();
+                player.setVelocityX(0);
+            }
+
+            // 👉 ĐANG ĐI SANG TRÁI
+            if (deltaX < 0 &&
+                player.getX() >= o.getX() + o.getWidth() &&
+                nextX < o.getX() + o.getWidth()) {
+
+                nextX = o.getX() + o.getWidth();
+                player.setVelocityX(0);
+            }
         }
 
-        // Draw HUD on top
-        if (hud != null) {
-            hud.draw();
+        player.setX(nextX);
+
+        // ===== DEBUG HITBOX =====
+        debugRenderer.setProjectionMatrix(stage.getCamera().combined);
+        debugRenderer.begin(ShapeRenderer.ShapeType.Line);
+        debugRenderer.setColor(1, 0, 0, 1);
+
+// PLAYER
+        debugRenderer.rect(
+            player.getX(),
+            player.getY(),
+            player.getWidth(),
+            player.getHeight()
+        );
+
+// OBSTACLES
+        for (Actor a : actorLayer.getChildren()) {
+            if (a instanceof Obstacle) {
+                Obstacle o = (Obstacle) a;
+                debugRenderer.rect(
+                    o.getX(),
+                    o.getY(),
+                    o.getWidth(),
+                    o.getHeight()
+                );
+            }
         }
+
+        debugRenderer.end();
+
+
+        stage.act(delta);
+        stage.draw();
+
+        debugRenderer.setProjectionMatrix(stage.getCamera().combined);
+        debugRenderer.begin(ShapeRenderer.ShapeType.Line);
+        debugRenderer.setColor(1, 0, 0, 1);
+
+// player hitbox
+        debugRenderer.rect(
+            player.getX(),
+            player.getY(),
+            player.getWidth(),
+            player.getHeight()
+        );
+
+// obstacle hitbox
+        for (Actor a : actorLayer.getChildren()) {
+            if (a instanceof Obstacle) {
+                Obstacle o = (Obstacle) a;
+                debugRenderer.rect(
+                    o.getX(),
+                    o.getY(),
+                    o.getWidth(),
+                    o.getHeight()
+                );
+            }
+        }
+
+        debugRenderer.end();
     }
 
-    // Handle resize events, ensure HUD also resizes
     @Override
     public void resize(int width, int height) {
-        super.resize(width, height); // BaseScreen tự xử lý resize background
-
-        if (hud != null) {
-            hud.resize(width, height);
-        }
-    }
-
-    @Override
-    public void dispose() {
-        super.dispose();
-        if (hud != null) hud.dispose();
+        stage.getViewport().update(width, height, true);
     }
 }

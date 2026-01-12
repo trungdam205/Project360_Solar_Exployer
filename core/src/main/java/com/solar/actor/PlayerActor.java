@@ -4,178 +4,204 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.utils.Array;
 
 public class PlayerActor extends Actor {
 
-    // ===== CONFIG =====
-    private static final float BASE_MOVE_SPEED = 160f;
-    private static final float BASE_GRAVITY    = 900f;
-    private static final float JUMP_FORCE      = 420f;
+    // ===== SPRITE CONFIG =====
+    private static final int FRAME_COLS = 5;
+    private static final int FRAME_ROWS = 3;
+    private float velocityX = 0f;
+    private boolean onGround;
 
-    // ===== SPRITE =====
-    private Texture spriteSheet;
-    private TextureRegion[][] regions;
+    // ===== EARTH REFERENCE =====
+    private static final float EARTH_GRAVITY = 9.81f;
 
-    private Animation<TextureRegion> idleAnim;
-    private Animation<TextureRegion> walkAnim;
-    private Animation<TextureRegion> jumpAnim;
+    // ===== BASE VALUES (EARTH) =====
+    private static final float SCALE_BASE = 1.0f;
+    private static final float BASE_MOVE_SPEED = 200f * SCALE_BASE;
+    private static final float BASE_JUMP_FORCE = 450f * SCALE_BASE;
+    private static final float BASE_FALL_SPEED = 900f * SCALE_BASE;
 
-    private float stateTime = 0f;
-
-    // ===== STATE =====
+    // ===== PHYSICS =====
     private float gravity;
-    private float velocityY = 0f;
-    private boolean isGrounded = true;
-    private boolean facingRight = true;
+    private float groundLineY;
 
-    private enum Direction {
-        LEFT,
-        RIGHT,
-        JUMP,
-        IDLE
-    }
+    private float velocityY;
+    private boolean isJumping;
 
-    private Direction direction = Direction.IDLE;
+    private float moveSpeed;
+    private float jumpForce;
+    private float fallSpeed;
+
+    // ===== GRAPHICS =====
+    private Texture texture;
+    private Animation<TextureRegion> idleAnim;
+    private Animation<TextureRegion> moveAnim;
+    private Animation<TextureRegion> currentAnim;
+
+    private float stateTime;
+    private boolean facingRight;
 
     // ===== CONSTRUCTOR =====
-    public PlayerActor(float gravity) {
-        this.gravity = gravity;
+    public PlayerActor(float planetGravity, float groundLineY) {
+        this.gravity = planetGravity;
+        this.groundLineY = groundLineY;
 
-        spriteSheet = new Texture(Gdx.files.internal("images/astronaut.png"));
+        float normalizedGravity = planetGravity / EARTH_GRAVITY;
 
-        int FRAME_WIDTH  = 340;
-        int FRAME_HEIGHT = 500;
+        // === CORE UPGRADE ===
+        this.moveSpeed = BASE_MOVE_SPEED / normalizedGravity;
+        this.jumpForce = BASE_JUMP_FORCE / normalizedGravity;
+        this.fallSpeed = BASE_FALL_SPEED * normalizedGravity;
 
-        regions = TextureRegion.split(spriteSheet, FRAME_WIDTH, FRAME_HEIGHT);
+        loadAnimations();
 
-        // Row 0: IDLE
-        idleAnim = new Animation<>(0.2f,
-            regions[0][0], regions[0][1], regions[0][2],
-            regions[0][3], regions[0][4]);
+        int frameWidth = texture.getWidth() / FRAME_COLS;
+        int frameHeight = texture.getHeight() / FRAME_ROWS;
+        setSize(frameWidth * 0.7f, frameHeight * 0.7f);
 
-        // Row 1: JUMP
-        jumpAnim = new Animation<>(0.2f,
-            regions[1][0], regions[1][1], regions[1][2],
-            regions[1][3], regions[1][4]);
-
-        // Row 2: WALK (LEFT base)
-        walkAnim = new Animation<>(0.15f,
-            regions[2][0], regions[2][1], regions[2][2],
-            regions[2][3], regions[2][4]);
-
-        setSize(FRAME_WIDTH, FRAME_HEIGHT);
+        setY(groundLineY);
     }
 
-    // ===== GAME LOOP =====
+    // ===== LOAD ANIMATION =====
+    private void loadAnimations() {
+        texture = new Texture(Gdx.files.internal("images/astronaut.png"));
+
+        TextureRegion[][] tmp = TextureRegion.split(
+            texture,
+            texture.getWidth() / FRAME_COLS,
+            texture.getHeight() / FRAME_ROWS
+        );
+
+        Array<TextureRegion> idleFrames = new Array<>();
+        for (int i = 0; i < FRAME_COLS; i++) {
+            idleFrames.add(tmp[0][i]);
+        }
+        idleAnim = new Animation<>(0.15f, idleFrames, Animation.PlayMode.LOOP);
+
+        Array<TextureRegion> moveFrames = new Array<>();
+        for (int i = 0; i < FRAME_COLS; i++) {
+            moveFrames.add(tmp[2][i]);
+        }
+        moveAnim = new Animation<>(0.1f, moveFrames, Animation.PlayMode.LOOP);
+
+        currentAnim = idleAnim;
+        facingRight = true;
+    }
+
+    // ===== UPDATE =====
     @Override
     public void act(float delta) {
         super.act(delta);
+        onGround = false;
+        handleInput(delta);
+        applyGravity(delta);
         stateTime += delta;
-
-        handleHorizontalMovement(delta);
-        handleJumpAndGravity(delta);
-        clampToScreen();
     }
 
-    // ===== MOVE LEFT / RIGHT =====
-    private void handleHorizontalMovement(float delta) {
-        float dx = 0;
+    // ===== INPUT =====
+    private void handleInput(float delta) {
+        boolean left = Gdx.input.isKeyPressed(Input.Keys.A);
+        boolean right = Gdx.input.isKeyPressed(Input.Keys.D);
+        boolean jump = Gdx.input.isKeyJustPressed(Input.Keys.SPACE);
 
-        if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-            dx = -BASE_MOVE_SPEED * delta;
+        float moveX = 0;
+
+        if (left) {
+            moveX = -moveSpeed * delta;
             facingRight = false;
-
-            if (isGrounded)
-                direction = Direction.LEFT;
-        }
-        else if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-            dx = BASE_MOVE_SPEED * delta;
+            currentAnim = moveAnim;
+        } else if (right) {
+            moveX = moveSpeed * delta;
             facingRight = true;
-
-            if (isGrounded)
-                direction = Direction.RIGHT;
-        }
-        else {
-            if (isGrounded)
-                direction = Direction.IDLE;
+            currentAnim = moveAnim;
+        } else {
+            currentAnim = idleAnim;
         }
 
-        moveBy(dx, 0);
-    }
+        velocityX = moveX / delta; // chỉ lưu vận tốc
 
-    // ===== JUMP + GRAVITY =====
-    private void handleJumpAndGravity(float delta) {
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) && isGrounded) {
-            velocityY = JUMP_FORCE * gravity;
-            isGrounded = false;
-            direction = Direction.JUMP;
-        }
-
-        velocityY -= BASE_GRAVITY * gravity * delta;
-        moveBy(0, velocityY * delta);
-
-        if (getY() <= 0) {
-            setY(0);
-            velocityY = 0;
-            isGrounded = true;
-            direction = Direction.IDLE;
+        if (jump && !isJumping) {
+            velocityY = jumpForce;
+            isJumping = true;
         }
     }
 
-    // ===== CLAMP TO SCREEN =====
-    private void clampToScreen() {
-        float worldWidth = getStage().getViewport().getWorldWidth();
+    // ===== GRAVITY =====
+    private void applyGravity(float delta) {
+        if (isJumping) {
+            velocityY -= fallSpeed * delta;
+            moveBy(0, velocityY * delta);
 
-        if (getX() < 0)
-            setX(0);
-        if (getX() > worldWidth - getWidth())
-            setX(worldWidth - getWidth());
+            if (getY() <= groundLineY) {
+                setY(groundLineY);
+                velocityY = 0;
+                isJumping = false;
+            }
+        }
     }
 
     // ===== DRAW =====
     @Override
     public void draw(Batch batch, float parentAlpha) {
-        TextureRegion frame;
+        TextureRegion frame = currentAnim.getKeyFrame(stateTime);
 
-        switch (direction) {
-
-            case LEFT:
-                frame = walkAnim.getKeyFrame(stateTime, true);
-                applyFlip(frame, false);
-                break;
-
-            case RIGHT:
-                frame = walkAnim.getKeyFrame(stateTime, true);
-                applyFlip(frame, true);
-                break;
-
-            case JUMP:
-                frame = jumpAnim.getKeyFrame(stateTime, true);
-                applyFlip(frame, facingRight);
-                break;
-
-            case IDLE:
-            default:
-                frame = idleAnim.getKeyFrame(stateTime, true);
-                applyFlip(frame, facingRight);
-                break;
-        }
+        if (facingRight && !frame.isFlipX()) frame.flip(true, false);
+        if (!facingRight && frame.isFlipX()) frame.flip(true, false);
 
         batch.draw(frame, getX(), getY(), getWidth(), getHeight());
     }
 
-    // ===== FLIP HELPER =====
-    private void applyFlip(TextureRegion frame, boolean faceRight) {
-        if (faceRight && !frame.isFlipX())
-            frame.flip(true, false);
-        if (!faceRight && frame.isFlipX())
-            frame.flip(true, false);
+    public void setGravity(float newGravity) {
+        this.gravity = newGravity;
+
+        float normalizedGravity = newGravity / EARTH_GRAVITY;
+
+        this.moveSpeed = BASE_MOVE_SPEED / normalizedGravity;
+        this.jumpForce = BASE_JUMP_FORCE / normalizedGravity;
+        this.fallSpeed = BASE_FALL_SPEED * normalizedGravity;
+
+        // reset trạng thái để tránh bug
+        velocityY = 0;
+        isJumping = false;
+        setY(groundLineY);
     }
 
-    // ===== CLEAN UP =====
+    public void resetState() {
+        velocityY = 0;
+        isJumping = false;
+        setY(groundLineY);
+    }
+
+    public Rectangle getRect(float nextX, float nextY) {
+        return new Rectangle(
+            nextX,
+            nextY,
+            getWidth(),
+            getHeight()
+        );
+    }
+
+    public float getVelocityX() {
+        return velocityX;
+    }
+
+    public void setVelocityX(float velocityX) {
+        this.velocityX = velocityX;
+    }
+
+    public void setOnGround(boolean value) {
+        onGround = value;
+    }
+
+    public boolean isOnGround() {
+        return onGround;
+    }
+
     public void dispose() {
-        spriteSheet.dispose();
+        texture.dispose();
     }
 }

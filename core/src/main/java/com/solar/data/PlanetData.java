@@ -1,45 +1,64 @@
 package com.solar.data;
 
-// Stores all data for a planet
+import java.util.List;
+
 public class PlanetData {
-    // Planet type (enum)
+
     public PlanetType type;
-    // Display name for UI
     public String displayName;
-    // Texture region name in atlas
     public String texturePath;
-    public float size; // Size of the planet (pixels)
-    public boolean canEnter;     // Can player enter this planet?
-
-    // Temporary position for Moon
+    public String texturePathPlanetScreen;
+    public List<ObstacleData> obstacles;
+    public float size;
+    public boolean canEnter;
+    // Vị trí lưu tạm cho Moon
     public float positionX;
-    // X position in solar system
     public float x;
-    // Y position in solar system
     public float y;
+    public float groundHeightRatio;
 
-    // Physics and info
-    public double gravity;       // Gravity value
-    public String weather;       // Weather description
-    public String atmosphere;    // Atmosphere type
-    public String surfaceType;   // Surface type
-    public String primaryRes;    // Main resource
+    public float gravity;       // Trọng lực
+    public String weather;  // Nhiệt độ
+    public String atmosphere;   // Khí quyển
+    public String surfaceType;  // Bề mặt
+    public String primaryRes;   // Tài nguyên
 
-    // Constructor: initializes all planet data
-    public PlanetData(PlanetType type, String displayName, String texturePath, float size, boolean canEnter, float x, float y,
-                      double gravity, String weather, String atmosphere, String surfaceType, String primaryRes) {
+
+    public PlanetData(
+        PlanetType type,
+        String displayName,
+        String texturePath,
+        String texturePathPlanetScreen,
+        float size,
+        boolean canEnter,
+        float x,
+        float y,
+        float groundHeightRatio,
+        float gravity,
+        String weather,
+        String atmosphere,
+        String surfaceType,
+        String primaryRes,
+        List<ObstacleData> obstacles
+    ) {
         this.type = type;
         this.displayName = displayName;
         this.texturePath = texturePath;
+        this.texturePathPlanetScreen = texturePathPlanetScreen;
         this.size = size;
         this.canEnter = canEnter;
         this.positionX = 0;
         this.x = x;
         this.y = y;
+        this.groundHeightRatio = groundHeightRatio;
+
         this.gravity = gravity;
         this.weather = weather;
         this.atmosphere = atmosphere;
         this.surfaceType = surfaceType;
         this.primaryRes = primaryRes;
+
+        // ⭐ QUAN TRỌNG
+        this.obstacles = obstacles;
     }
 }
