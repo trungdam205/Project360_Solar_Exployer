@@ -1,273 +1,257 @@
 package com.solar.screen;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic. gdx.graphics. OrthographicCamera;
+import com.badlogic.gdx.math.MathUtils;
 import com.solar.MainGame;
-import com.solar.actor.PlayerActor;
-import com.solar.actor.obstacle.RockObstacle;
-import com.solar.actor.obstacle.SpineRockObstacle;
-import com.solar.data.*;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.math.Rectangle;
-import com.solar.actor.obstacle.Obstacle;
+import com.solar.data.CelestialData;
+import com.solar.entity. Obstacle;
+import com.solar.planet.*;
 
+/**
+ * Planet exploration screen - refactored to use modular components
+ */
 public class PlanetScreen extends BaseScreen {
 
-    private PlanetType planet;
-    private PlanetData data;
-    private PlayerActor player;
-    private float groundLineY;
-    private Group actorLayer;
-    private ShapeRenderer debugRenderer = new ShapeRenderer();
+    // Constants
+    private static final float WORLD_EXTENT = 5000f;
+    private static final float TERRAIN_HEIGHT_RATIO = 0.28f;
+    private static final float CAMERA_LERP = 5f;
 
-    public PlanetScreen(MainGame game, PlanetType planet) {
+    // References
+    private final CelestialData planet;
+    private final BaseScreen previousScreen;
+
+    // Camera
+    private OrthographicCamera gameCamera;
+    private float cameraX;
+
+    // Components
+    private PlanetPhysics physics;
+    private PlanetPlayer player;
+    private PlanetTerrain terrain;
+    private PlanetObstacles obstacles;
+    private PlanetUI ui;
+
+    // World
+    private float groundY;
+    private float worldWidth;
+
+    // State
+    private boolean reachedGoal;
+
+    public PlanetScreen(MainGame game, CelestialData planet, BaseScreen previousScreen) {
         super(game);
         this.planet = planet;
-        this.data = PlanetDatabase.get(planet);
-
-        addBackButton(() ->
-            setScreenWithFade(new SolarSystemScreen(game))
-        );
-
-        Gdx.input.setInputProcessor(stage);
+        this.previousScreen = previousScreen;
     }
 
     @Override
     public void show() {
         super.show();
 
-        // ===== LAYERS =====
-        Group starLayer   = new Group();
-        Group planetLayer = new Group();
-        actorLayer  = new Group();
+        // Initialize camera
+        gameCamera = new OrthographicCamera();
+        gameCamera.setToOrtho(false, WORLD_WIDTH, WORLD_HEIGHT);
 
-        stage.addActor(starLayer);
-        stage.addActor(planetLayer);
-        stage.addActor(actorLayer);
+        // World setup
+        worldWidth = WORLD_EXTENT;
+        groundY = WORLD_HEIGHT * TERRAIN_HEIGHT_RATIO;
+        cameraX = WORLD_WIDTH / 2f;
 
-        // ===== STAR BACKGROUND =====
-        Texture starTexture =
-            new Texture(Gdx.files.internal("background/background.png"));
+        // Initialize physics first (other components depend on it)
+        physics = new PlanetPhysics(planet);
+        Gdx.app. log("PlanetScreen", "=== INITIALIZING ===");
+        Gdx.app. log("PlanetScreen", "Planet: " + planet. name);
+        Gdx.app.log("PlanetScreen", "Exploration: " + (planet.exploration != null ? "OK" : "NULL"));
 
-        Image starBg = new Image(starTexture);
-        starBg.setSize(
-            stage.getViewport().getWorldWidth(),
-            stage.getViewport().getWorldHeight()
+        // ...  rest of initialization
+
+        physics = new PlanetPhysics(planet);
+        Gdx.app. log("PlanetScreen", "Physics created: " + physics. getPlanetType());
+        // Initialize components with physics
+        player = new PlanetPlayer();
+        player.init(150f, groundY, worldWidth, physics);
+
+        terrain = new PlanetTerrain(planet, groundY, worldWidth, WORLD_HEIGHT);
+        obstacles = new PlanetObstacles(planet, groundY, worldWidth, physics);
+
+        ui = new PlanetUI(stage, skin, planet, physics, WORLD_WIDTH, WORLD_HEIGHT);
+        ui.init(
+                () -> setScreenWithFade(previousScreen),  // onBack
+                this::toggleGravity,                       // onToggleGravity
+                this::resetLevel                           // onRetry
         );
-        starBg.setPosition(0, 0);
 
-        starLayer.addActor(starBg);
+        // Initial state
+        reachedGoal = false;
 
-        // ===== PLANET = GROUND =====
-        Texture groundTexture =
-            new Texture(Gdx.files.internal(data.texturePathPlanetScreen));
+        Gdx.app.log("PlanetScreen", "Initialized for " + planet.name +
+                " (" + physics.getPlanetType() + ", " + physics.getPlanetGravity() + "g)");
+    }
 
-        Image ground = new Image(groundTexture);
-
-        ground.setSize(
-            stage.getViewport().getWorldWidth(),
-            groundTexture.getHeight()
-        );
-        ground.setPosition(0, 0);
-        planetLayer.addActor(ground);
-
-        // ===== GROUND LINE TỪ DATABASE =====
-        groundLineY = ground.getHeight() * data.groundHeightRatio;
-
-        // ===== PLAYER =====
-        player = new PlayerActor(data.gravity, groundLineY);
-        player.setPosition(50, groundLineY);
-        actorLayer.addActor(player);
-
-        // ===== OBSTACLES =====
-        if (data.obstacles != null) {
-            for (ObstacleData o : data.obstacles) {
-                Texture tex = new Texture(Gdx.files.internal(o.texturePath));
-
-                Obstacle obstacle;
-
-                switch (o.type) {
-                    case ROCK:
-                        obstacle = new RockObstacle(
-                            tex,
-                            o.x, o.y,
-                            o.width, o.height
-                        );
-                        break;
-
-                    case SPINE:
-                        obstacle = new SpineRockObstacle(
-                            tex,
-                            o.x, o.y,
-                            o.width, o.height,
-                            50, groundLineY // respawn
-                        );
-                        break;
-
-                    default:
-                        continue;
-                }
-
-                actorLayer.addActor(obstacle);
-
-                actorLayer.addActor(obstacle); // ⚠️ dùng actorLayer
+    private void toggleGravity() {
+        try {
+            if (physics != null) {
+                physics.toggleGravity();
+                Gdx.app. log("PlanetScreen", "Gravity toggled: " + physics.isPlanetGravityEnabled() +
+                        ", Current:  " + physics.getCurrentGravity());
             }
+
+            if (ui != null) {
+                ui.updateGravityDisplay();
+            }
+        } catch (Exception e) {
+            Gdx.app.error("PlanetScreen", "Error toggling gravity: " + e.getMessage());
+            e.printStackTrace();
         }
+    }
 
-        // ===== GRAVITY COMPARISON UI =====
-        Table gravityTable = new Table();
-        gravityTable.setFillParent(true);
-        gravityTable.bottom().right().pad(40);
-
-// Button: Earth's Gravity
-        TextButton earthGravityBtn =
-            new TextButton("Earth's Gravity", skin);
-
-// Button: Planet Gravity
-        TextButton planetGravityBtn =
-            new TextButton(data.displayName + "'s Gravity", skin);
-
-// ===== ACTIONS =====
-        earthGravityBtn.addListener(e -> {
-            if (!earthGravityBtn.isPressed()) return false;
-            player.setGravity(9.81f);
-            return true;
-        });
-
-        planetGravityBtn.addListener(e -> {
-            if (!planetGravityBtn.isPressed()) return false;
-            player.setGravity(data.gravity);
-            return true;
-        });
-
-// ===== LAYOUT =====
-        gravityTable.add(earthGravityBtn)
-            .width(300)
-            .height(70)
-            .padBottom(15)
-            .row();
-
-        gravityTable.add(planetGravityBtn)
-            .width(300)
-            .height(70);
-
-        stage.addActor(gravityTable);
-
-        // ===== UI =====
-        addBackButton(() ->
-            setScreenWithFade(new SolarSystemScreen(game))
-        );
+    private void resetLevel() {
+        physics.reset();
+        player.reset();
+        ui.resetGravityUI();
+        reachedGoal = false;
+        cameraX = WORLD_WIDTH / 2f;
     }
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0, 0, 0, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-        float deltaX = player.getVelocityX() * delta;
-        float nextX = player.getX() + deltaX;
-
-        for (Actor a : actorLayer.getChildren()) {
-            if (!(a instanceof Obstacle)) continue;
-
-            Obstacle o = (Obstacle) a;
-
-            // ✅ CHỈ CẦN OVERLAP THEO Y
-            boolean overlapY =
-                player.getY() < o.getY() + o.getHeight() &&
-                    player.getY() + player.getHeight() > o.getY();
-
-            if (!overlapY) continue;
-
-            // 👉 ĐANG ĐI SANG PHẢI
-            if (deltaX > 0 &&
-                player.getX() + player.getWidth() <= o.getX() &&
-                nextX + player.getWidth() > o.getX()) {
-
-                nextX = o.getX() - player.getWidth();
-                player.setVelocityX(0);
-            }
-
-            // 👉 ĐANG ĐI SANG TRÁI
-            if (deltaX < 0 &&
-                player.getX() >= o.getX() + o.getWidth() &&
-                nextX < o.getX() + o.getWidth()) {
-
-                nextX = o.getX() + o.getWidth();
-                player.setVelocityX(0);
-            }
+        // Update
+        if (!player.isDead() && !reachedGoal) {
+            handleInput();
+            update(delta);
         }
 
-        player.setX(nextX);
-
-        // ===== DEBUG HITBOX =====
-        debugRenderer.setProjectionMatrix(stage.getCamera().combined);
-        debugRenderer.begin(ShapeRenderer.ShapeType.Line);
-        debugRenderer.setColor(1, 0, 0, 1);
-
-// PLAYER
-        debugRenderer.rect(
-            player.getX(),
-            player.getY(),
-            player.getWidth(),
-            player.getHeight()
+        // Clear screen
+        Gdx.gl.glClearColor(
+                planet.exploration.skyColorTop. r,
+                planet.exploration.skyColorTop. g,
+                planet.exploration.skyColorTop.b,
+                1
         );
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        Gdx. gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
-// OBSTACLES
-        for (Actor a : actorLayer.getChildren()) {
-            if (a instanceof Obstacle) {
-                Obstacle o = (Obstacle) a;
-                debugRenderer.rect(
-                    o.getX(),
-                    o.getY(),
-                    o.getWidth(),
-                    o.getHeight()
-                );
-            }
-        }
+        // Update camera
+        gameCamera.position.x = cameraX;
+        gameCamera. position.y = WORLD_HEIGHT / 2f;
+        gameCamera.update();
 
-        debugRenderer.end();
+        // Render terrain
+        game.shapeRenderer.setProjectionMatrix(gameCamera.combined);
+        terrain.render(game. shapeRenderer, cameraX);
 
+        // Render obstacles
+        game.batch.setProjectionMatrix(gameCamera.combined);
+        game.shapeRenderer. setProjectionMatrix(gameCamera.combined);
+        obstacles.render(game.batch, game.shapeRenderer, cameraX, WORLD_WIDTH);
+        obstacles.renderGoal(game.shapeRenderer);
 
+        // Render player
+        game.batch.setProjectionMatrix(gameCamera.combined);
+        game.batch.begin();
+        player.render(game.batch);
+        game.batch.end();
+
+        // Render UI
+        stage.getViewport().apply();
         stage.act(delta);
         stage.draw();
+    }
 
-        debugRenderer.setProjectionMatrix(stage.getCamera().combined);
-        debugRenderer.begin(ShapeRenderer.ShapeType.Line);
-        debugRenderer.setColor(1, 0, 0, 1);
+    private void handleInput() {
+        player.handleInput();
 
-// player hitbox
-        debugRenderer.rect(
-            player.getX(),
-            player.getY(),
-            player.getWidth(),
-            player.getHeight()
-        );
-
-// obstacle hitbox
-        for (Actor a : actorLayer.getChildren()) {
-            if (a instanceof Obstacle) {
-                Obstacle o = (Obstacle) a;
-                debugRenderer.rect(
-                    o.getX(),
-                    o.getY(),
-                    o.getWidth(),
-                    o.getHeight()
-                );
-            }
+        if (Gdx.input. isKeyJustPressed(Input. Keys.G)) {
+            toggleGravity();
         }
 
-        debugRenderer.end();
+        if (Gdx. input.isKeyJustPressed(Input. Keys.ESCAPE)) {
+            setScreenWithFade(previousScreen);
+        }
+    }
+
+    private void update(float delta) {
+        // Update player
+        player. update(delta);
+
+        // Check collisions
+        checkObstacleCollisions();
+        checkGoalReached();
+
+        // Update camera
+        float targetCameraX = player.getX();
+        float halfScreen = WORLD_WIDTH / 2f;
+        targetCameraX = MathUtils.clamp(targetCameraX, halfScreen, worldWidth - halfScreen);
+        cameraX += (targetCameraX - cameraX) * CAMERA_LERP * delta;
+    }
+
+    private void checkObstacleCollisions() {
+        for (Obstacle obstacle :  obstacles.getObstacles()) {
+            if (! obstacle.isCollidable()) continue;
+
+            if (player.getBounds().overlaps(obstacle.bounds)) {
+                if (obstacle.isDeadly()) {
+                    player.die();
+                    ui.showDeath();
+                    return;
+                }
+
+                handleWallCollision(obstacle);
+            }
+        }
+    }
+
+    private void handleWallCollision(Obstacle obstacle) {
+        float playerBottom = player.getBounds().y;
+        float playerTop = player.getBounds().y + player.getBounds().height;
+        float playerLeft = player.getBounds().x;
+        float playerRight = player.getBounds().x + player.getBounds().width;
+
+        float obsLeft = obstacle.bounds. x;
+        float obsRight = obstacle. bounds.x + obstacle.bounds.width;
+        float obsTop = obstacle.bounds. y + obstacle.bounds.height;
+        float obsBottom = obstacle.bounds.y;
+
+        // Landing on top
+        if (player.getVelocityY() <= 0 && playerBottom < obsTop && playerBottom > obsTop - 30) {
+            player.landOnObstacle(obstacle);
+        }
+        // Hit from left
+        else if (playerRight > obsLeft && playerLeft < obsLeft && playerBottom < obsTop - 10) {
+            player.pushLeft(obsLeft);
+        }
+        // Hit from right
+        else if (playerLeft < obsRight && playerRight > obsRight && playerBottom < obsTop - 10) {
+            player.pushRight(obsRight);
+        }
+        // Hit from below
+        else if (playerTop > obsBottom && playerBottom < obsBottom && player.getVelocityY() > 0) {
+            player.stopUpwardMovement();
+        }
+    }
+
+    private void checkGoalReached() {
+        if (player.getBounds().overlaps(obstacles.getGoalBounds())) {
+            reachedGoal = true;
+            ui.showVictory();
+        }
     }
 
     @Override
     public void resize(int width, int height) {
-        stage.getViewport().update(width, height, true);
+        super.resize(width, height);
+        gameCamera.setToOrtho(false, WORLD_WIDTH, WORLD_HEIGHT);
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        if (player != null) player.dispose();
+        if (obstacles != null) obstacles.dispose();
     }
 }

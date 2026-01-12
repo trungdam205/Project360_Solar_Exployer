@@ -1,34 +1,37 @@
-package com.solar.config;
+package com. solar.config;
 
 public class GameConfig {
 
-    // --- CẤU HÌNH MÀN HÌNH ---
-    // Kích thước cửa sổ mặc định (Desktop)
-    public static final int SCREEN_WIDTH = 1280;
-    public static final int SCREEN_HEIGHT = 720;
-
-    // Kích thước thế giới ảo (Viewport) - Nên khớp với BaseScreen của bạn
+    // Screen dimensions
     public static final float WORLD_WIDTH = 1920f;
     public static final float WORLD_HEIGHT = 1200f;
 
-    // --- CẤU HÌNH VẬT LÝ (BOX2D) ---
-    // PPM = Pixels Per Meter.
-    // Box2D dùng mét, LibGDX dùng pixel.
-    // 32 pixel = 1 mét (hoặc 100 tùy bạn chọn, 32 là chuẩn Mario/Platformer)
-    public static final float PPM = 32.0f;
+    // Player constants
+    public static final float PLAYER_WIDTH = 100f;
+    public static final float PLAYER_HEIGHT = 100f;
+    public static final float WALK_SPEED = 280f;
+    public static final float RUN_SPEED = 420f;
+    public static final float BASE_JUMP_VELOCITY = 750f;
+    public static final float GRAVITY_FORCE = 2000f;
+    public static final float EARTH_GRAVITY = 1.0f;
 
-    // Tần số cập nhật vật lý (60 lần/giây)
-    public static final float TIME_STEP = 1 / 60f;
+    // Camera
+    public static final float CAMERA_LERP = 5f;
 
-    // Chế độ Debug (Bật lên để thấy khung dây xanh lá của Box2D)
-    public static final boolean DEBUG_MODE = true;
+    // World
+    public static final float WORLD_EXTENT = 5000f;
+    public static final float TERRAIN_HEIGHT_RATIO = 0.28f;
 
-    // --- CẤU HÌNH VA CHẠM (COLLISION BITS) ---
-    // Dùng để lọc va chạm (Cái nào đụng được cái nào)
-    // Ví dụ: Player ăn được Item, nhưng không đi xuyên qua Tường
-    public static final short BIT_GROUND = 1;
-    public static final short BIT_PLAYER = 2;
-    public static final short BIT_ITEM   = 4;
-    public static final short BIT_PLANET = 8;
-    public static final short BIT_ENEMY  = 16;
+    // Asset paths
+    public static final String SKIN_PATH = "uiskin.json";
+    public static final String PLANET_ATLAS_PATH = "planets/planets.atlas";
+    public static final String PLAYER_ATLAS_PATH = "player.atlas";
+    public static final String BACKGROUND_PATH = "background/background.png";
+
+    // Obstacle paths
+    public static final String OBSTACLE_PATH = "Obstacle/";
+
+    private GameConfig() {
+        // Prevent instantiation
+    }
 }
