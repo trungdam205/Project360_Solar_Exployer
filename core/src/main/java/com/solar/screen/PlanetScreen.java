@@ -64,7 +64,7 @@ public class PlanetScreen extends BaseScreen {
         // Initialize physics first (other components depend on it)
         physics = new PlanetPhysics(planet);
         Gdx.app. log("PlanetScreen", "=== INITIALIZING ===");
-        Gdx.app. log("PlanetScreen", "Planet: " + planet. name);
+        Gdx.app. log("PlanetScreen", "Planet: " + planet.name);
         Gdx.app.log("PlanetScreen", "Exploration: " + (planet.exploration != null ? "OK" : "NULL"));
 
         // ...  rest of initialization
@@ -125,21 +125,20 @@ public class PlanetScreen extends BaseScreen {
             update(delta);
         }
 
-        // Clear screen
-        Gdx.gl.glClearColor(
-                planet.exploration.skyColorTop. r,
-                planet.exploration.skyColorTop. g,
-                planet.exploration.skyColorTop.b,
-                1
-        );
+        // Clear screen with dark space color
+        Gdx.gl.glClearColor(0.02f, 0.02f, 0.06f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        Gdx. gl.glEnable(GL20.GL_BLEND);
+
+        Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
         // Update camera
         gameCamera.position.x = cameraX;
-        gameCamera. position.y = WORLD_HEIGHT / 2f;
+        gameCamera.position.y = WORLD_HEIGHT / 2f;
         gameCamera.update();
+
+        // Render starfield background (uses game camera for parallax)
+        renderStarfield();
 
         // Render terrain
         game.shapeRenderer.setProjectionMatrix(gameCamera.combined);
@@ -149,7 +148,8 @@ public class PlanetScreen extends BaseScreen {
         game.batch.setProjectionMatrix(gameCamera.combined);
         game.shapeRenderer. setProjectionMatrix(gameCamera.combined);
         obstacles.render(game.batch, game.shapeRenderer, cameraX, WORLD_WIDTH);
-        obstacles.renderGoal(game.shapeRenderer);
+        obstacles.renderGoal(game.batch, game.shapeRenderer);
+
 
         // Render player
         game.batch.setProjectionMatrix(gameCamera.combined);
@@ -254,4 +254,62 @@ public class PlanetScreen extends BaseScreen {
         if (player != null) player.dispose();
         if (obstacles != null) obstacles.dispose();
     }
+
+
+    private void renderStarfield() {
+        game.shapeRenderer.setProjectionMatrix(gameCamera.combined);
+        game.shapeRenderer.begin(com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.Filled);
+
+        // Generate stars based on camera position (consistent starfield)
+        int gridSize = 1000;
+        int gridX = (int)(gameCamera.position.x / gridSize);
+        int gridY = (int)(gameCamera.position.y / gridSize);
+
+        for (int gx = gridX - 2; gx <= gridX + 2; gx++) {
+            for (int gy = gridY - 2; gy <= gridY + 2; gy++) {
+                renderStarGridCell(gx, gy);
+            }
+        }
+
+        game.shapeRenderer.end();
+    }
+
+
+    private void renderStarGridCell(int gridX, int gridY) {
+        int cellSize = 1000;
+
+        // Use grid coordinates as seed for consistent stars
+        java.util.Random random = new java.util.Random(gridX * 73856093L ^ gridY * 19349663L);
+
+        int starCount = 100; // Increased to 100 for more visible stars
+        for (int i = 0; i < starCount; i++) {
+            float x = gridX * cellSize + random.nextFloat() * cellSize;
+            float y = gridY * cellSize + random.nextFloat() * cellSize;
+            float size = random.nextFloat() * 3f + 1f; // Larger stars (1-4 pixels)
+            float brightness = random.nextFloat() * 0.4f + 0.6f; // Brighter (0.6-1.0)
+
+            // Add color variation - some stars are white, some bluish, some yellowish
+            float colorVariation = random.nextFloat();
+            float r, g, b;
+            if (colorVariation < 0.7f) {
+                // White stars (most common)
+                r = g = b = brightness;
+            } else if (colorVariation < 0.85f) {
+                // Bluish stars
+                r = brightness * 0.8f;
+                g = brightness * 0.9f;
+                b = brightness;
+            } else {
+                // Yellowish stars
+                r = brightness;
+                g = brightness * 0.95f;
+                b = brightness * 0.7f;
+            }
+
+            game.shapeRenderer.setColor(r, g, b, 1f);
+            game.shapeRenderer.circle(x, y, size);
+        }
+    }
+
 }
+

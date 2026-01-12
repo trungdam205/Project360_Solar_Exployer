@@ -28,7 +28,6 @@ public class PlanetTerrain {
         this.worldHeight = worldHeight;
         this.features = new Array<>();
         this.mountains = new Array<>();
-
         generate();
     }
 
@@ -63,8 +62,8 @@ public class PlanetTerrain {
         float viewLeft = cameraX - worldWidth;
         float viewRight = cameraX + worldWidth;
 
-        // Sky gradient
-        renderSky(shapeRenderer, viewLeft);
+        // Sky gradient - COMMENTED OUT to show starfield background
+        // renderSky(shapeRenderer, viewLeft);
 
         // Mountains (parallax)
         renderMountains(shapeRenderer, cameraX, viewLeft, viewRight);

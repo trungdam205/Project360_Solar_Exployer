@@ -1,0 +1,419 @@
+    @startuml
+    ' Core UML diagrams for Project_CS360 (module: core)
+
+    skinparam packageStyle rectangle
+    skinparam shadowing false
+    skinparam classAttributeIconSize 0
+
+    title Project_CS360 - Core UML
+
+    ' =========================
+    ' 1) Screen navigation
+    ' =========================
+
+    class MainGame {
+    +create()
+    +render()
+    +dispose()
+
+    +getBatch()
+    +getAssetManager()
+    +getSkin()
+    +getSolarSystemScreen()
+
+    +getPlanetAtlas()
+    +getPlayerAtlas()
+    +getMainAtlas()
+
+    -loadSkinWithFonts()
+    -queueAssets()
+    }
+
+    class SkinGenerator {
+@startuml
+' Core UML diagrams for Project_CS360 (module: core)
+
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+title Project_CS360 - Core UML
+
+' =========================
+' 1) Screen navigation
+' =========================
+
+class MainGame {
+    +create()
+    +render()
+    +dispose()
+
+    +getBatch()
+    +getAssetManager()
+    +getSkin()
+    +getSolarSystemScreen()
+
+    +getPlanetAtlas()
+    +getPlayerAtlas()
+    +getMainAtlas()
+
+    -loadSkinWithFonts()
+    -queueAssets()
+}
+
+class SkinGenerator {
+    {static} +createSkin()
+    -drawButton(pixmap, x, y, w, h, bg, border)
+    -drawWindow(pixmap, x, y, w, h)
+    -drawSliderBg(pixmap, x, y, w, h)
+    -drawSliderKnob(pixmap, x, y, w, h, color)
+    -drawScrollBar(pixmap, x, y, w, h)
+    -drawScrollKnob(pixmap, x, y, w, h)
+    -buildLabelStyles(skin)
+    -buildButtonStyles(skin)
+    -buildSliderStyles(skin)
+    -buildWindowStyles(skin)
+    -buildScrollPaneStyles(skin)
+    -buildListStyles(skin)
+}
+
+abstract class BaseScreen {
+    +BaseScreen(game)
+    +show()
+    +render(delta)
+    +resize(width, height)
+    +dispose()
+    +pause()
+    +resume()
+    +hide()
+
+    -createFadeOverlay()
+    #setBackground(texturePath)
+    #setScreenWithFade(nextScreen)
+    #addBackButton(onBack)
+}
+
+class LoadingScreen {
+    +LoadingScreen(game, message, showProgressBar, onLoadingFinished)
+    +render(delta)
+    -setupUI()
+}
+
+class MenuScreen {
+    +MenuScreen(game)
+    +show()
+    +render(delta)
+    +resize(w, h)
+    +pause()
+    +resume()
+    +hide()
+    +dispose()
+}
+
+class SolarSystemScreen {
+    +SolarSystemScreen(game)
+    +show()
+    +render(delta)
+    +resize(width, height)
+    +dispose()
+
+    -initUI()
+    -setupInput()
+    -onBodyClicked(body)
+    -goToPlanet(body)
+    -showNotExplorableMessage(body)
+    -resetView()
+    -updatePositions()
+    -renderOrbits()
+    -renderPlanetNames()
+}
+
+class PlanetScreen {
+    +PlanetScreen(game, planet)
+    +show()
+    +render(delta)
+    +resize(width, height)
+}
+
+class Star {
+    +Star(x, y, size, twinkleDuration)
+    +update(delta)
+    +render(renderer)
+}
+
+class CelestialBodyRenderer
+class CelestialData
+
+class PlanetType <<external>>
+class PlanetData <<external>>
+class PlanetDatabase <<external>>
+class PlayerActor <<external>>
+
+class Stage <<external>>
+class Skin <<external>>
+class Texture <<external>>
+class Image <<external>>
+class OrthographicCamera <<external>>
+class SpriteBatch <<external>>
+class ShapeRenderer <<external>>
+class AssetManager <<external>>
+
+MainGame -|> "com.badlogic.gdx.Game"
+BaseScreen ..|> "com.badlogic.gdx.Screen"
+
+LoadingScreen --|> BaseScreen
+MenuScreen --|> BaseScreen
+SolarSystemScreen --|> BaseScreen
+PlanetScreen --|> BaseScreen
+
+MainGame o-- SpriteBatch
+MainGame o-- ShapeRenderer
+MainGame o-- AssetManager
+MainGame o-- Skin
+MainGame o-- "0..1" SolarSystemScreen : lazy init
+
+BaseScreen o-- Stage
+BaseScreen o-- Skin
+BaseScreen o-- Texture
+BaseScreen o-- Image
+
+LoadingScreen ..> MenuScreen : onLoadingFinished
+MenuScreen ..> SolarSystemScreen : START
+SolarSystemScreen ..> MenuScreen : Menu
+SolarSystemScreen ..> PlanetScreen : explore planet
+PlanetScreen ..> SolarSystemScreen : Back
+
+SolarSystemScreen *-- CelestialBodyRenderer
+SolarSystemScreen o-- "0..*" Star
+SolarSystemScreen o-- "0..*" CelestialData
+SolarSystemScreen o-- OrthographicCamera
+SolarSystemScreen ..> CelestialData : createAllBodies()
+
+PlanetScreen o-- PlayerActor
+PlanetScreen --> PlanetType
+PlanetScreen o-- PlanetData
+PlanetScreen ..> PlanetDatabase : get()
+
+note right of PlanetScreen
+    PlanetScreen currently references:
+    - PlayerActor
+    - PlanetType / PlanetData / PlanetDatabase
+    These are not present in core/src/main/java list.
+
+    Also note: SolarSystemScreen calls
+    `new PlanetScreen(game, body, this)` in code,
+    but PlanetScreen constructor in this file is
+    `PlanetScreen(MainGame, PlanetType)`.
+end note
+
+newpage
+
+' =========================
+' 2) Planet exploration + data + actors
+' =========================
+
+class CelestialData {
+    +String id
+    +String name
+    +boolean explorable
+    +ExplorationData exploration
+    {static} +createAllBodies()
+}
+
+class "CelestialData.ExplorationData" as ExplorationData {
+    +float gravity
+    +ExplorationData(skyTop, skyBottom, terrain, gravity)
+    +addLandmark(x, name, description, emoji)
+}
+
+class "CelestialData.Landmark" as Landmark {
+    +Landmark(x, name, description, emoji)
+}
+
+CelestialData *-- ExplorationData
+ExplorationData *-- "0..*" Landmark
+
+class PlanetPhysics {
+    +PlanetPhysics(planet)
+    +toggleGravity()
+    +reset()
+    +getJumpVelocity()
+    +getGravityDelta(delta)
+    +getEarthJumpHeight()
+    +getPlanetJumpHeight()
+    {static} +calculateMaxJumpHeight(gravity)
+    +getCurrentGravity()
+    +getPlanetGravity()
+    +isPlanetGravityEnabled()
+    +getPlanetType()
+    +getPlanet()
+    +getGravityString()
+    +getGravityColorIndicator()
+}
+
+class PlanetPlayer {
+    +PlanetPlayer()
+    +init(startX, groundY, worldWidth, physics)
+    +reset()
+    +handleInput()
+    +jump()
+    +update(delta)
+    +render(batch)
+    +landOnObstacle(obstacle)
+    +pushLeft(obstacleLeft)
+    +pushRight(obstacleRight)
+    +stopUpwardMovement()
+    +die()
+    +getX()
+    +getY()
+    +getVelocityY()
+    +isJumping()
+    +isDead()
+    +getBounds()
+    +dispose()
+
+    -updateBounds()
+}
+
+class PlanetObstacles {
+    +PlanetObstacles(planet, groundY, worldWidth, physics)
+    +getObstacles()
+    +getGoalBounds()
+    +getGoalX()
+    +render(batch, shapeRenderer, cameraX, screenWidth)
+    +renderGoal(batch, shapeRenderer)
+    +dispose()
+
+    -loadTextures()
+    -generate()
+    -isVisible(obstacle, viewLeft, viewRight)
+}
+
+class PlanetTerrain {
+    +PlanetTerrain(planet, groundY, worldWidth, worldHeight)
+    +render(shapeRenderer, cameraX)
+
+    -generate()
+    -generateMountains()
+    -generateFeatures()
+    -renderSky(shapeRenderer, viewLeft)
+    -renderMountains(shapeRenderer, cameraX, viewLeft, viewRight)
+    -renderFeatures(shapeRenderer, viewLeft, viewRight)
+    -renderGround(shapeRenderer, viewLeft)
+}
+
+class PlanetUI {
+    +PlanetUI(stage, skin, planet, physics, worldWidth, worldHeight)
+    +init(onBack, onToggleGravity, onRetry)
+    +updateGravityDisplay()
+    +showVictory()
+    +showDeath()
+    +hideWindows()
+    +resetGravityUI()
+
+    -createTopBar()
+    -createGravityPanel()
+    -createHintLabel()
+    -createControlsHint()
+    -createVictoryWindow()
+    -createDeathWindow()
+    -getHintText()
+    -getDeathMessage()
+    -Planet_Fact()
+}
+
+class PlayerRenderer {
+    +PlayerRenderer()
+    +update(delta, movingLeft, movingRight, isRunning)
+    +render(batch, x, y)
+    +render(batch, x, y, customWidth, customHeight)
+    +setState(state)
+    +getState()
+    +setFacingRight(facingRight)
+    +isFacingRight()
+    +setSize(width, height)
+    +getWidth()
+    +getHeight()
+    +dispose()
+
+    -loadAnimations()
+    -addRegionIfExists(frames, regionName)
+    -getCurrentFrame()
+}
+
+class CelestialBodyRenderer {
+    +CelestialBodyRenderer()
+    +update(delta)
+    +renderSunGlow(shapeRenderer, x, y, size)
+    +render(batch, body, x, y, size)
+    +renderFallbackShape(shapeRenderer, body, x, y, size)
+    +hasTexture(bodyId)
+    +dispose()
+
+    -renderHeartRegion(shapeRenderer, x, y, size)
+    -renderCraters(shapeRenderer, x, y, size)
+}
+
+class Obstacle {
+    +Obstacle()
+    +Obstacle(x, y, width, height, type)
+    +updateBounds()
+    +boolean isCollidable()
+    +boolean isDeadly()
+}
+
+class TerrainFeature {
+    +TerrainFeature()
+    +TerrainFeature(x, width, height, color)
+}
+
+class Mountain {
+    +Mountain()
+    +Mountain(x, width, height, color)
+}
+
+class CelestialBody {
+    +CelestialBody(id, name, size, innerColor, outerColor)
+    +setAccentColor(color)
+    +setRings(hasRings)
+    +setGreatSpot(hasSpot)
+    +setPolarCap(hasCap)
+    +setCraters(hasCraters)
+    +setContinents(hasContinents)
+    +setHeartRegion(hasHeart)
+    +setData(type, diameter, mass, temperature, distance, orbitalPeriod, orbitalSpeed, facts)
+    +setPosition(x, y)
+    +setSize(size)
+    +contains(px, py)
+    +render(renderer)
+}
+
+class GameConfig {
+    -GameConfig()
+}
+
+class Rectangle <<external>>
+
+' Relationships
+PlanetPhysics *-- CelestialData : planet
+
+PlanetPlayer *-- PlayerRenderer
+PlanetPlayer o-- PlanetPhysics : uses
+PlanetPlayer o-- Obstacle : stands on
+
+PlanetObstacles *-- CelestialData : planet
+PlanetObstacles o-- PlanetPhysics
+PlanetObstacles o-- "0..*" Obstacle
+
+PlanetTerrain *-- CelestialData : planet
+PlanetTerrain o-- "0..*" TerrainFeature
+PlanetTerrain o-- "0..*" Mountain
+
+PlanetUI *-- CelestialData : planet
+PlanetUI o-- PlanetPhysics
+PlanetUI o-- Stage
+PlanetUI o-- Skin
+
+Obstacle o-- Rectangle
+
+@enduml

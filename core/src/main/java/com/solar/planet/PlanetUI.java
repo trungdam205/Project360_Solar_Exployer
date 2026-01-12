@@ -6,6 +6,7 @@ import com.badlogic.gdx.scenes.scene2d. InputEvent;
 import com.badlogic. gdx.scenes. scene2d.Stage;
 import com. badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d. utils. ClickListener;
+import com.badlogic.gdx.utils.Align;
 import com.solar.data.CelestialData;
 
 /**
@@ -31,6 +32,7 @@ public class PlanetUI {
     private Label hintLabel;
     private Window victoryWindow;
     private Window deathWindow;
+    private boolean gravityButtonClicked = false;
 
     public PlanetUI(Stage stage, Skin skin, CelestialData planet, PlanetPhysics physics,
                     float worldWidth, float worldHeight) {
@@ -60,11 +62,10 @@ public class PlanetUI {
         topBar. setFillParent(true);
         topBar.top().pad(20);
 
-        Label titleLabel = new Label(planet.name + " Surface", skin);
+        Label titleLabel = new Label(planet.name.toUpperCase()+ " SURFACE", skin);
         titleLabel. setFontScale(2.0f);
-        titleLabel.setColor(Color. CYAN);
-
-        TextButton backButton = new TextButton("< Back", skin);
+        titleLabel.setColor(Color. WHITE);
+        TextButton backButton = new TextButton("Back", skin);
         backButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -72,45 +73,59 @@ public class PlanetUI {
             }
         });
 
-        topBar.add(titleLabel).expandX().left();
-        topBar. add(backButton).width(120).height(50).right();
+        topBar.add(titleLabel).expandX().left().padLeft(20).padTop(10);
+        topBar.add(backButton).width(120).height(50).right();
         stage.addActor(topBar);
     }
 
     private void createGravityPanel() {
+        // Góc trái dưới - chỉ có nút gravity
         Table panel = new Table();
         panel.setFillParent(true);
-        panel.bottom().left().pad(25);
-
-        Table box = new Table();
-        box.setBackground(skin.newDrawable("white", new Color(0, 0, 0, 0.85f)));
-        box.pad(15);
+        panel.bottom().left().pad(20);
 
         gravityStatusLabel = new Label("Gravity: Earth (1.00g)", skin);
-        gravityStatusLabel. setFontScale(1.1f);
+        gravityStatusLabel.setFontScale(1.1f);
         gravityStatusLabel.setColor(Color.WHITE);
 
         gravityButton = new TextButton("Try " + planet.name + "'s Gravity!", skin);
+        gravityButton.getLabel().setColor(Color.WHITE);
         gravityButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 if (onToggleGravity != null) {
-                    onToggleGravity. run();
+                    onToggleGravity.run();
+                    gravityButtonClicked = !gravityButtonClicked;
+                    gravityButton.getLabel().setColor(gravityButtonClicked ? Color.BLACK : Color.WHITE);
                 }
             }
         });
 
-        hintLabel = new Label(getHintText(), skin);
-        hintLabel.setFontScale(0.9f);
-        hintLabel.setColor(Color. YELLOW);
-        hintLabel. setWrap(true);
-
-        box.add(gravityStatusLabel).left().row();
-        box.add(gravityButton).width(320).height(55).padTop(10).row();
-        box.add(hintLabel).width(320).padTop(8);
-
-        panel.add(box);
+        // Cố định width để button không thay đổi kích cỡ khi text thay đổi
+        panel.add(gravityButton).width(360).height(55);
         stage.addActor(panel);
+
+        // Dòng chữ hint di chuyển ra giữa màn hình, phía trên hướng dẫn keyboard
+        createHintLabel();
+    }
+
+    private void createHintLabel() {
+        Table hintPanel = new Table();
+        hintPanel.setFillParent(true);
+        hintPanel.top().left().padLeft(20).padTop(80); // Đặt phía trên hướng dẫn keyboard
+
+        Table bg = new Table();
+        bg.setBackground(skin.newDrawable("white", new Color()));
+        bg.pad(12, 25, 12, 25);
+
+        hintLabel = new Label(getHintText(), skin);
+        hintLabel.setFontScale(1.0f);
+        hintLabel.setColor(Color.LIGHT_GRAY); // Đổi từ màu vàng sang trắng
+        hintLabel.setWrap(true);
+
+        bg.add(hintLabel).width(800);
+        hintPanel.add(bg);
+        stage.addActor(hintPanel);
     }
 
     private void createControlsHint() {
@@ -123,7 +138,7 @@ public class PlanetUI {
         bg.pad(10, 20, 10, 20);
 
         Label label = new Label("Arrows/WASD: Move | SPACE: Jump | G: Toggle Gravity", skin);
-        label.setFontScale(0.95f);
+        label.setFontScale(1.0f);
         label.setColor(1f, 1f, 1f, 0.85f);
         bg.add(label);
 
@@ -133,8 +148,8 @@ public class PlanetUI {
 
     private void createVictoryWindow() {
         victoryWindow = new Window("", skin);
-        victoryWindow.setSize(650, 320);
-        victoryWindow.setPosition(worldWidth / 2 - 275, worldHeight / 2 - 160);
+        victoryWindow.setSize(1000, 640);
+        victoryWindow.setPosition(worldWidth / 2 - victoryWindow.getWidth() / 2, worldHeight / 2 - victoryWindow.getHeight() / 2);
         victoryWindow.setVisible(false);
         victoryWindow.setMovable(false);
 
@@ -147,10 +162,10 @@ public class PlanetUI {
         Label message = new Label("You mastered " + planet.name + "'s gravity!", skin);
         message.setFontScale(1.3f);
 
-        Label fact = new Label(getGravityFact(), skin);
+        Label fact = new Label(Planet_Fact(), skin, "body");
         fact.setWrap(true);
-        fact.setFontScale(1.05f);
-        fact.setColor(0.5f, 0.9f, 1f, 1f);
+        fact.setFontScale(1.0f);
+        fact.setColor(Color.WHITE);
 
         TextButton continueBtn = new TextButton("Back to Space", skin);
         continueBtn.addListener(new ClickListener() {
@@ -215,38 +230,36 @@ public class PlanetUI {
 
     /**
      * Update gravity display after physics toggle
-     * Called from PlanetScreen after physics. toggleGravity()
+     * Called from PlanetScreen after physics.toggleGravity()
      */
     public void updateGravityDisplay() {
         try {
             if (physics == null) {
-                Gdx.app. error("PlanetUI", "Physics is null!");
+                Gdx.app.error("PlanetUI", "Physics is null!");
                 return;
             }
 
-            if (gravityStatusLabel == null || gravityButton == null) {
-                Gdx.app. error("PlanetUI", "UI elements not initialized!");
+            if (gravityButton == null) {
+                Gdx.app.error("PlanetUI", "UI elements not initialized!");
                 return;
             }
 
-            // Update label text
-            String gravityText = "Gravity: " + physics.getGravityString();
-            gravityStatusLabel.setText(gravityText);
-
-            // Update label color
-            updateGravityStatusColor();
-
-            // Update button text
+            // Update button text (width cố định nên text thay đổi không ảnh hưởng kích cỡ)
             if (physics.isPlanetGravityEnabled()) {
                 gravityButton.setText("Use Earth's Gravity");
             } else {
-                gravityButton. setText("Try " + planet.name + "'s Gravity!");
+                gravityButton.setText("Try " + planet.name + "'s Gravity!");
             }
 
-            Gdx.app. log("PlanetUI", "Gravity display updated:  " + gravityText);
+            // Update hint label
+            if (hintLabel != null) {
+                hintLabel.setText(getHintText());
+            }
+
+            Gdx.app.log("PlanetUI", "Gravity display updated");
 
         } catch (Exception e) {
-            Gdx. app.error("PlanetUI", "Error updating gravity display:  " + e.getMessage());
+            Gdx.app.error("PlanetUI", "Error updating gravity display: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -274,16 +287,17 @@ public class PlanetUI {
 
     public void resetGravityUI() {
         try {
-            if (gravityStatusLabel != null) {
-                gravityStatusLabel. setText("Gravity:  Earth (1.00g)");
-                gravityStatusLabel.setColor(Color.WHITE);
-            }
             if (gravityButton != null) {
                 gravityButton.setText("Try " + planet.name + "'s Gravity!");
+                gravityButton.setColor(Color.WHITE);
+            }
+            gravityButtonClicked = false;
+            if (hintLabel != null) {
+                hintLabel.setText(getHintText());
             }
             hideWindows();
         } catch (Exception e) {
-            Gdx.app. error("PlanetUI", "Error resetting gravity UI: " + e.getMessage());
+            Gdx.app.error("PlanetUI", "Error resetting gravity UI: " + e.getMessage());
         }
     }
 
@@ -294,9 +308,9 @@ public class PlanetUI {
 
         switch (physics.getPlanetType()) {
             case LOW_GRAVITY:
-                return "Walls too high?  " + planet.name + "'s low gravity = HIGHER jumps!";
+                return "Can't jump over the wall? Try " + planet.name + "'s gravity!";
             case HIGH_GRAVITY:
-                return "Spikes above? " + planet. name + "'s high gravity = LOWER jumps!";
+                return "Can't avoid the spikes? Try " + planet. name + "'s gravity!";
             default:
                 return "Jump over obstacles to reach the goal!";
         }
@@ -315,49 +329,65 @@ public class PlanetUI {
         }
     }
 
-    private void updateGravityStatusColor() {
-        if (physics == null || gravityStatusLabel == null) return;
-
-        if (! physics.isPlanetGravityEnabled()) {
-            gravityStatusLabel.setColor(Color.WHITE);
-            return;
-        }
-
-        switch (physics.getPlanetType()) {
-            case LOW_GRAVITY:
-                gravityStatusLabel.setColor(0.3f, 1f, 0.5f, 1f); // Green
-                break;
-            case HIGH_GRAVITY:
-                gravityStatusLabel.setColor(1f, 0.5f, 0.3f, 1f); // Orange
-                break;
-            default:
-                gravityStatusLabel. setColor(Color. WHITE);
-                break;
-        }
-    }
-
-    private String getGravityFact() {
+    private String Planet_Fact() {
         switch (planet.id) {
             case "mercury":
-                return "On Mercury (0.38g), you could jump almost 3 times higher than on Earth!";
+            return "Temperature: Day 427°C, Night -173°C.\n" +
+                   "Weather: No atmosphere, no wind or rain.\n" +
+                   "Rocks: Hard silicate rocks, heavily cratered.\n" +
+                   "Gravity: 0.38x Earth. Jump 3x higher!\n" +
+                "Fun Fact: Closest to Sun but not the hottest. Shrinking as core cools.";
+
             case "venus":
-                return "Venus has 91% of Earth's gravity - you'd barely notice the difference!";
-            case "mars":
-                return "On Mars (0.38g), astronauts could easily leap over obstacles!";
+            return "Temperature: Hottest planet (~464°C day & night).\n" +
+                   "Weather: Thick clouds, sulfuric acid rain.\n" +
+                   "Rocks: Volcanic basalt, active volcanoes.\n" +
+                   "Gravity: 0.91x Earth (almost same as Earth).\n" +
+                "Fun Fact: Rotates backwards (Sun rises in West).";
+
             case "moon":
-                return "On the Moon (0.17g), Apollo astronauts could hop around like kangaroos!";
+            return "Temperature: -173°C (night) to 127°C (day).\n" +
+                   "Weather: Silent, no wind, no atmosphere.\n" +
+                   "Rocks: Covered in regolith (rocky dust).\n" +
+                   "Gravity: 0.17x Earth (1/6th). Lift heavy rocks easily.\n" +
+                "Fun Fact: Footprints stay preserved for 50+ years.";
+
+            case "mars":
+            return "Temperature: Avg -62°C. Red dust storms.\n" +
+                   "Weather: CO2 snow falls occasionally.\n" +
+                   "Rocks: Rusted iron-bearing basalt (Red dust).\n" +
+                   "Gravity: 0.38x Earth. Throw balls 3x farther.\n" +
+                "Fun Fact: Features blue sunsets unlike Earth.";
+
             case "jupiter":
-                return "Jupiter's gravity (2.53g) would make you feel 2.5x heavier! ";
+            return "Temperature: -145°C in upper clouds.\n" +
+                   "Weather: Violent storms. Great Red Spot raging 300+ yrs.\n" +
+                   "Structure: Massive gas giant.\n" +
+                   "Gravity: 2.53x Earth. 50kg feels like 126kg.\n" +
+                "Fun Fact: Deflects asteroids, protecting Earth.";
+
             case "saturn":
-                return "Despite its size, Saturn's gravity (1.07g) is close to Earth's!";
+            return "Temperature: Avg -178°C.\n" +
+                   "Weather: Winds faster than jets. Hexagon storm at North Pole.\n" +
+                   "Gravity: 1.07x Earth (slightly heavier).\n" +
+                "Fun Fact: Low density - would float on water!";
+
             case "uranus":
-                return "Uranus has 89% of Earth's gravity - surprisingly light for a giant!";
+            return "Temperature: Coldest planet (-224°C).\n" +
+                   "Weather: Methane atmosphere (pale blue), cold winds.\n" +
+                   "Rocks: No solid surface. Compressed ice/gas.\n" +
+                   "Gravity: 0.89x Earth.\n" + // [cite: 95]
+                "Fun Fact: Rotates on its side like a rolling ball.";
+
             case "neptune":
-                return "Neptune's gravity (1.14g) would make jumping harder than on Earth!";
-            case "pluto":
-                return "On Pluto (0.06g), you could jump over a building!";
+            return "Temperature: Avg -214°C.\n" +
+                   "Weather: Strongest winds (2,000 km/h).\n" +
+                   "Rocks: Ice giant with small rocky core.\n" +
+                   "Gravity: 1.14x Earth.\n" +
+                "Fun Fact: Immense pressure may create diamond rain.";
+
             default:
-                return "Earth's gravity (1g) is what we call 'normal' gravity!";
+                return "Gravity conquered! Ready for the next mission.";
         }
     }
-}
+    }

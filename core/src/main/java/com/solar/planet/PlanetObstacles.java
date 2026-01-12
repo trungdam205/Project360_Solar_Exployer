@@ -2,16 +2,17 @@ package com.solar. planet;
 
 import com.badlogic.gdx. Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com. badlogic.gdx.graphics. Texture;
-import com. badlogic.gdx.graphics.g2d. SpriteBatch;
+import com.badlogic.gdx.graphics. Texture;
+import com.badlogic.gdx.graphics.g2d. SpriteBatch;
 import com.badlogic.gdx. graphics.glutils.ShapeRenderer;
 import com.badlogic. gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
-import com. badlogic.gdx.utils.Array;
-import com. badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.solar. data.CelestialData;
 import com. solar.entity. Obstacle;
+
 
 /**
  * Obstacle management for planet exploration
@@ -59,11 +60,16 @@ public class PlanetObstacles implements Disposable {
                     textures.put("spike", new Texture(Gdx.files.internal(spikePath)));
                 }
             }
+            String flagPath = "woodenboard2.png";
+            if (Gdx.files.internal(flagPath).exists()) {
+                textures.put("flag", new Texture(Gdx.files.internal(flagPath)));
+            }
 
             Gdx.app.log("PlanetObstacles", "Loaded " + textures.size + " textures for " + planet.name);
         } catch (Exception e) {
             Gdx.app.error("PlanetObstacles", "Error loading textures: " + e.getMessage());
         }
+
     }
 
     private String capitalize(String str) {
@@ -90,7 +96,7 @@ public class PlanetObstacles implements Disposable {
 
     private void generateLowGravityObstacles(float earthJump, float planetJump) {
         float wallHeight = earthJump + 54;
-        if (wallHeight > planetJump - 30) wallHeight = planetJump - 15;
+        if (wallHeight > wallHeight - 15) wallHeight = wallHeight - 15;
         if (wallHeight < 100) wallHeight = 100;
 
         Gdx.app.log("PlanetObstacles", "Low gravity walls - Height: " + wallHeight +
@@ -103,18 +109,26 @@ public class PlanetObstacles implements Disposable {
     }
 
     private void generateHighGravityObstacles(float earthJump, float planetJump) {
-        float wallHeight = 40;
-        float spikeY = groundY + wallHeight + 70;
+        float wallHeight = 60;
 
-        if (spikeY > groundY + earthJump - 50) spikeY = groundY + earthJump - 50;
-        if (spikeY < groundY + planetJump + 40) spikeY = groundY + planetJump + 40;
+        float safeGap = 50;
+        float spikeY = groundY + wallHeight + safeGap + 20;
+        Gdx. app.log("HighGravity", planet.name + " - Wall:  " + wallHeight +" "+ spikeY);
 
-        Gdx.app.log("PlanetObstacles", "High gravity - WallHeight: " + wallHeight +
-            ", SpikeY: " + spikeY + ", EarthJump: " + earthJump + ", PlanetJump: " + planetJump);
 
+        if (spikeY > groundY + earthJump - 50) {
+            spikeY = groundY + earthJump - 50;
+        }
+        Gdx. app.log("HighGravity", planet.name + " - Wall:  " + wallHeight +" "+ spikeY);
+
+        float planetMaxY = groundY + planetJump;
+        if (spikeY < planetMaxY + 40) {
+            spikeY = planetMaxY + 40;
+        }
+        Gdx. app.log("HighGravity", planet.name + " - Wall:  " + wallHeight +" "+ spikeY);
         float[] positions = {600, 1300, 2000, 2700, 3400, 4100};
         for (float posX : positions) {
-            obstacles.add(createWall(posX, wallHeight));
+            obstacles.add(createWall(posX, wallHeight - 20));
             obstacles.add(createSpike(posX - 50, spikeY + wallHeight, 180, 30));
         }
     }
@@ -200,25 +214,23 @@ public class PlanetObstacles implements Disposable {
         }
     }
 
-    public void renderGoal(ShapeRenderer shapeRenderer) {
-        shapeRenderer.begin(ShapeType. Filled);
-
-        // Pole
-        shapeRenderer.setColor(0.55f, 0.55f, 0.55f, 1f);
-        shapeRenderer.rectLine(goalX, groundY, goalX, groundY + 230, 7);
-
-        // Flag
-        shapeRenderer.setColor(0.2f, 0.85f, 0.3f, 1f);
-        shapeRenderer.triangle(goalX, groundY + 230, goalX + 75, groundY + 200, goalX, groundY + 170);
-
-        shapeRenderer.setColor(0.15f, 0.7f, 0.25f, 1f);
-        shapeRenderer.triangle(goalX, groundY + 220, goalX + 50, groundY + 200, goalX, groundY + 180);
+    public void renderGoal(SpriteBatch batch, ShapeRenderer shapeRenderer) {
+        // Render pole
+        shapeRenderer.begin(ShapeType.Filled);
+        shapeRenderer.setColor(232/255f, 162/255f, 102/255f, 1f);
+        shapeRenderer.rectLine(goalX, groundY, goalX, groundY + 150, 7);
 
         // Base
-        shapeRenderer.setColor(0.5f, 0.5f, 0.5f, 1f);
+        shapeRenderer.setColor(Color.LIGHT_GRAY);
         shapeRenderer.rect(goalX - 35, groundY, 70, 18);
-
         shapeRenderer.end();
+
+        // Render flag texture
+        batch.begin();
+        if (textures.get("flag") != null) {
+            batch.draw(textures.get("flag"), goalX - 35f, groundY + 90, 70, 60);
+        }
+        batch.end();
     }
 
     // Getters
