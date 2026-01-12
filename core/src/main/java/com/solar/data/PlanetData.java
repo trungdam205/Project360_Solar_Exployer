@@ -1,11 +1,14 @@
 package com.solar.data;
 
+import java.util.List;
+
 public class PlanetData {
 
     public PlanetType type;
     public String displayName;
     public String texturePath;
     public String texturePathPlanetScreen;
+    public List<ObstacleData> obstacles;
     public float size;
     public boolean canEnter;
     // Vị trí lưu tạm cho Moon
@@ -21,8 +24,23 @@ public class PlanetData {
     public String primaryRes;   // Tài nguyên
 
 
-    public PlanetData(PlanetType type, String displayName, String texturePath, String texturePathPlanetScreen, float size, boolean canEnter, float x, float y, float groundHeightRatio,
-                      float gravity, String weather, String atmosphere, String surfaceType, String primaryRes) {
+    public PlanetData(
+        PlanetType type,
+        String displayName,
+        String texturePath,
+        String texturePathPlanetScreen,
+        float size,
+        boolean canEnter,
+        float x,
+        float y,
+        float groundHeightRatio,
+        float gravity,
+        String weather,
+        String atmosphere,
+        String surfaceType,
+        String primaryRes,
+        List<ObstacleData> obstacles
+    ) {
         this.type = type;
         this.displayName = displayName;
         this.texturePath = texturePath;
@@ -40,5 +58,7 @@ public class PlanetData {
         this.surfaceType = surfaceType;
         this.primaryRes = primaryRes;
 
+        // ⭐ QUAN TRỌNG
+        this.obstacles = obstacles;
     }
 }
